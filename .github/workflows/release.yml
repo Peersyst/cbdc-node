@@ -1,4 +1,5 @@
-name: Release
+name: "Release"
+
 on:
   workflow_dispatch:
     inputs:
@@ -6,59 +7,27 @@ on:
         description: The branch or the commit sha to push tag to
         required: true
       tag:
-        description: The tag of the release
+        description: The tag of the release (vX.Y.Z)
         required: true
-      is_latest_release:
-        description: Is this the latest release
-        type: boolean
-        required: true
-permissions:
-  contents: write
+
 jobs:
-  release:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.inputs.commit_branch }}
-          fetch-depth: 0
-          fetch-tags: true
-      - uses: docker/setup-qemu-action@v2
-      - uses: docker/setup-buildx-action@v2
-      - name: Free disk space
-        run: rm -rf /opt/hostedtoolcache
-      # Docker login
-      - uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PUSH_TOKEN }}
-      - run: |
-          TAG=${{ github.event.inputs.tag }}
-          echo "VERSION=${TAG#v}" >> $GITHUB_ENV
-      # Build and push docker image
-      - name: Build docker image
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          target: release
-          push: true
-          build-args: VERSION=${{ env.VERSION }}
-          tags: |
-            peersyst/exrp:${{ github.event.inputs.tag }}
-            ${{ fromJSON('["", "peersyst/exrp:latest"]')[github.event.inputs.is_latest_release == 'true'] }}
-          secrets: |
-            ssh_key_b64=${{ secrets.SSH_KEY_B64 }}
-      - name: Publish the Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ github.event.inputs.tag }}
-          prerelease: steps.check-prerelease.outputs.match == 'true'
-          target_commitish: ${{ github.event.inputs.commit_branch }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  goreleaser:
-    needs: [ release ]
-    uses: ./.github/workflows/goreleaser.yml
+  build-docker:
+    uses: ./.github/workflows/build-docker.yml
     secrets: inherit
     with:
-      commit_branch: ${{ github.event.inputs.commit_branch }}
+      tag: ${{ github.event.inputs.tag }}
+      push: true
+      target: release
+
+  release:
+    name: Github release
+    needs: [ build-docker ]
+    if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate Github release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ github.event.inputs.tag }}
+          tag_name: ${{ github.event.inputs.tag }}
+          target_commitish: ${{ github.event.inputs.commit_branch }}

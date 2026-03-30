@@ -8,9 +8,9 @@ before:
     - go mod download
 
 builds:
-  - id: "exrpd-darwin-amd64"
-    main: ./cmd/exrpd
-    binary: bin/exrpd
+  - id: "cbdcd-darwin-amd64"
+    main: ./cmd/cbdcd
+    binary: bin/cbdcd
     env:
       - CGO_ENABLED=1
       - CC=o64-clang
@@ -22,10 +22,10 @@ builds:
     flags:
       - -tags=cgo
     ldflags:
-      - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=exrp -X github.com/cosmos/cosmos-sdk/version.AppName=exrpd -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
-  - id: "exrpd-darwin-arm64"
-    main: ./cmd/exrpd
-    binary: bin/exrpd
+      - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=cbdc -X github.com/cosmos/cosmos-sdk/version.AppName=cbdcd -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
+  - id: "cbdcd-darwin-arm64"
+    main: ./cmd/cbdcd
+    binary: bin/cbdcd
     env:
       - CGO_ENABLED=1
       - CC=oa64-clang
@@ -37,10 +37,10 @@ builds:
     flags:
       - -tags=cgo
     ldflags:
-      - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=exrp -X github.com/cosmos/cosmos-sdk/version.AppName=exrpd -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
-  - id: "exrpd-linux-amd64"
-    main: ./cmd/exrpd
-    binary: bin/exrpd
+      - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=cbdc -X github.com/cosmos/cosmos-sdk/version.AppName=cbdcd -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
+  - id: "cbdcd-linux-amd64"
+    main: ./cmd/cbdcd
+    binary: bin/cbdcd
     env:
       - CGO_ENABLED=1
       - CC=gcc
@@ -52,10 +52,10 @@ builds:
     flags:
       - -tags=cgo
     ldflags:
-      - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=exrp -X github.com/cosmos/cosmos-sdk/version.AppName=exrpd -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
-  - id: "exrpd-linux-arm64"
-    main: ./cmd/exrpd
-    binary: bin/exrpd
+      - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=cbdc -X github.com/cosmos/cosmos-sdk/version.AppName=cbdcd -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
+  - id: "cbdcd-linux-arm64"
+    main: ./cmd/cbdcd
+    binary: bin/cbdcd
     env:
       - CGO_ENABLED=1
       - CC=aarch64-linux-gnu-gcc
@@ -67,10 +67,10 @@ builds:
     flags:
       - -tags=cgo
     ldflags:
-      - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=exrp -X github.com/cosmos/cosmos-sdk/version.AppName=exrpd -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
-  - id: "exrpd-windows"
-    main: ./cmd/exrpd
-    binary: bin/exrpd
+      - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=cbdc -X github.com/cosmos/cosmos-sdk/version.AppName=cbdcd -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
+  - id: "cbdcd-windows"
+    main: ./cmd/cbdcd
+    binary: bin/cbdcd
     env:
       - CGO_ENABLED=1
       - CC=x86_64-w64-mingw32-gcc
@@ -83,7 +83,7 @@ builds:
       - -tags=cgo
       - -buildmode=exe
     ldflags:
-      - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=exrp -X github.com/cosmos/cosmos-sdk/version.AppName=exrpd -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
+      - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=cbdc -X github.com/cosmos/cosmos-sdk/version.AppName=cbdcd -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
 
 archives:
   - name_template: '{{ .ProjectName }}_{{ .Version }}_{{- title .Os }}_{{ .Arch }}'
@@ -91,11 +91,11 @@ archives:
       - goos: windows
         format: zip
     builds:
-      - exrpd-darwin-amd64
-      - exrpd-darwin-arm64
-      - exrpd-windows
-      - exrpd-linux-amd64
-      - exrpd-linux-arm64
+      - cbdcd-darwin-amd64
+      - cbdcd-darwin-arm64
+      - cbdcd-windows
+      - cbdcd-linux-amd64
+      - cbdcd-linux-arm64
 
 checksum:
   name_template: 'checksums.txt'

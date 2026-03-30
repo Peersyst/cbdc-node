@@ -9,9 +9,9 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/x/simulation"
 
-	"github.com/xrplevm/node/v10/testutil/sample"
-	poasimulation "github.com/xrplevm/node/v10/x/poa/simulation"
-	"github.com/xrplevm/node/v10/x/poa/types"
+	"github.com/peersyst/cbdc-node/testutil/sample"
+	poasimulation "github.com/peersyst/cbdc-node/x/poa/simulation"
+	"github.com/peersyst/cbdc-node/x/poa/types"
 )
 
 // avoid unused import issue

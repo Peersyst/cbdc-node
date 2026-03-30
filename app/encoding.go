@@ -3,7 +3,6 @@ package app
 import (
 	"cosmossdk.io/x/tx/signing"
 	"github.com/cosmos/cosmos-sdk/codec/address"
-	legacytypes "github.com/xrplevm/node/v10/types/legacy/ethermint/types"
 
 	amino "github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
@@ -11,17 +10,12 @@ import (
 	sdktestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	enccodec "github.com/cosmos/evm/encoding/codec"
 	"github.com/cosmos/evm/ethereum/eip712"
 	erc20types "github.com/cosmos/evm/x/erc20/types"
 	vmtypes "github.com/cosmos/evm/x/vm/types"
 	"github.com/cosmos/gogoproto/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
-
-	feemarketlegacytypes "github.com/xrplevm/node/v10/types/legacy/ethermint/feemarket"
-	erc20legacytypes "github.com/xrplevm/node/v10/types/legacy/evmos/erc20"
-	poalegacytypes "github.com/xrplevm/node/v10/x/poa/types/legacy"
 )
 
 func MakeEncodingConfig(evmChainID uint64) sdktestutil.TestEncodingConfig {
@@ -43,27 +37,6 @@ func MakeEncodingConfig(evmChainID uint64) sdktestutil.TestEncodingConfig {
 		ProtoFiles:     proto.HybridResolver,
 		SigningOptions: signingOptions,
 	})
-
-	interfaceRegistry.RegisterImplementations((*sdk.Msg)(nil),
-		&poalegacytypes.MsgAddValidator{},
-		&poalegacytypes.MsgRemoveValidator{},
-		&feemarketlegacytypes.MsgUpdateParams{},
-		&erc20legacytypes.MsgConvertERC20{},
-		&erc20legacytypes.MsgConvertCoin{},
-		&erc20legacytypes.MsgUpdateParams{},
-		&erc20legacytypes.MsgTransferOwnership{},
-		&erc20legacytypes.MsgMint{},
-		&erc20legacytypes.MsgBurn{},
-		&erc20legacytypes.MsgRegisterERC20{},
-		&erc20legacytypes.MsgToggleConversion{},
-	)
-
-	interfaceRegistry.RegisterImplementations((*sdk.AccountI)(nil),
-		&legacytypes.EthAccount{}, // evmos (legacy)
-	)
-	interfaceRegistry.RegisterImplementations((*authtypes.AccountI)(nil),
-		&legacytypes.EthAccount{}, // evmos (legacy)
-	)
 
 	codec := amino.NewProtoCodec(interfaceRegistry)
 	enccodec.RegisterLegacyAminoCodec(cdc)

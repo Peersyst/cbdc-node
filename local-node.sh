@@ -1,4 +1,4 @@
-CHAINID="xrplevm_1449999-1"
+CHAINID="cbdc_1449999-1"
 MONIKER="localnet"
 # Remember to change to other types of keyring like 'file' in-case exposing to outside world,
 # otherwise your balance will be wiped quickly
@@ -7,7 +7,7 @@ KEYRING="test"
 KEYALGO="eth_secp256k1"
 LOGLEVEL="info"
 # Set dedicated home directory for the evmosd instance
-HOMEDIR="$PWD/.exrpd"
+HOMEDIR="$PWD/.cbdcd"
 # to trace evm
 #TRACE="--trace"
 TRACE=""
@@ -29,12 +29,12 @@ rm -rf $HOMEDIR
 
 make build
 
-bin/exrpd --home "$HOMEDIR" config set client chain-id "$CHAINID" --chain-id "$CHAINID"
-bin/exrpd --home "$HOMEDIR" config set client keyring-backend "$KEYRING"
+bin/cbdcd --home "$HOMEDIR" config set client chain-id "$CHAINID" --chain-id "$CHAINID"
+bin/cbdcd --home "$HOMEDIR" config set client keyring-backend "$KEYRING"
 
-echo "$MNEMONIC" | bin/exrpd --home "$HOMEDIR" keys add "$KEY_NAME" --recover --keyring-backend "$KEYRING" --algo "$KEYALGO"
+echo "$MNEMONIC" | bin/cbdcd --home "$HOMEDIR" keys add "$KEY_NAME" --recover --keyring-backend "$KEYRING" --algo "$KEYALGO"
 
-bin/exrpd --home "$HOMEDIR" init "$MONIKER" -o --chain-id "$CHAINID"
+bin/cbdcd --home "$HOMEDIR" init "$MONIKER" -o --chain-id "$CHAINID"
 
 jq '.consensus.params["block"]["max_gas"]="10500000"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 jq '.app_state["crisis"]["constant_fee"]["denom"]="axrp"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
@@ -59,15 +59,15 @@ jq '.app_state.erc20.token_pairs=[{contract_owner:1,erc20_address:"0xeeeeeeeeeee
 jq '.app_state["slashing"]["params"]["slash_fraction_double_sign"]="0"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 jq '.app_state["slashing"]["params"]["slash_fraction_downtime"]="0"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
-bin/exrpd --home "$HOMEDIR" genesis add-genesis-account "$(bin/exrpd --home "$HOMEDIR" keys show "$KEY_NAME" -a --keyring-backend "$KEYRING")" 1000000apoa,1000000000000000000000000000axrp --keyring-backend "$KEYRING"
+bin/cbdcd --home "$HOMEDIR" genesis add-genesis-account "$(bin/cbdcd --home "$HOMEDIR" keys show "$KEY_NAME" -a --keyring-backend "$KEYRING")" 1000000apoa,1000000000000000000000000000axrp --keyring-backend "$KEYRING"
 
-bin/exrpd --home "$HOMEDIR" genesis add-genesis-account "ethm1zrxl239wa6ad5xge3gs68rt98227xgnjq0xyw2" 1000000000000000000000000000axrp --keyring-backend "$KEYRING"
+bin/cbdcd --home "$HOMEDIR" genesis add-genesis-account "ethm1zrxl239wa6ad5xge3gs68rt98227xgnjq0xyw2" 1000000000000000000000000000axrp --keyring-backend "$KEYRING"
 
-bin/exrpd --home "$HOMEDIR" genesis gentx alice 1000000apoa --gas-prices ${BASEFEE}axrp --keyring-backend "$KEYRING" --chain-id "$CHAINID"
+bin/cbdcd --home "$HOMEDIR" genesis gentx alice 1000000apoa --gas-prices ${BASEFEE}axrp --keyring-backend "$KEYRING" --chain-id "$CHAINID"
 
-bin/exrpd --home "$HOMEDIR" genesis collect-gentxs
+bin/cbdcd --home "$HOMEDIR" genesis collect-gentxs
 
-bin/exrpd --home "$HOMEDIR" genesis validate
+bin/cbdcd --home "$HOMEDIR" genesis validate
 
 if [[ $1 == "pending" ]]; then
 		if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -108,7 +108,7 @@ if [[ $1 == "pending" ]]; then
 		grep -q -F '[memiavl]' "$APP_TOML" && sed -i '/\[memiavl\]/,/^\[/ s/enable = true/enable = false/' "$APP_TOML"
 	fi
 
-bin/exrpd start \
+bin/cbdcd start \
 	--metrics "$TRACE" \
 	--log_level $LOGLEVEL \
 	--json-rpc.api eth,txpool,personal,net,debug,web3 \

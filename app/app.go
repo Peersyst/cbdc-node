@@ -12,7 +12,7 @@ import (
 	"cosmossdk.io/core/appmodule"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/x/auth/posthandler"
-	"github.com/xrplevm/node/v10/app/ante"
+	"github.com/peersyst/cbdc-node/app/ante"
 
 	"github.com/ethereum/go-ethereum/common"
 
@@ -52,7 +52,7 @@ import (
 	consensusparamkeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
 	consensusparamtypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 	vmmod "github.com/cosmos/evm/x/vm"
-	"github.com/xrplevm/node/v10/x/poa"
+	"github.com/peersyst/cbdc-node/x/poa"
 
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
@@ -123,9 +123,9 @@ import (
 	ibcexported "github.com/cosmos/ibc-go/v10/modules/core/exported"
 	ibckeeper "github.com/cosmos/ibc-go/v10/modules/core/keeper"
 
-	"github.com/xrplevm/node/v10/docs"
-	poakeeper "github.com/xrplevm/node/v10/x/poa/keeper"
-	poatypes "github.com/xrplevm/node/v10/x/poa/types"
+	"github.com/peersyst/cbdc-node/docs"
+	poakeeper "github.com/peersyst/cbdc-node/x/poa/keeper"
+	poatypes "github.com/peersyst/cbdc-node/x/poa/types"
 
 	srvflags "github.com/cosmos/evm/server/flags"
 
@@ -242,7 +242,7 @@ type App struct {
 	FeeMarketKeeper feemarketkeeper.Keeper
 	Erc20Keeper     erc20keeper.Keeper
 
-	// exrp keepers
+	// cbdc keepers
 	PoaKeeper poakeeper.Keeper
 
 	// mm is the module manager
@@ -448,7 +448,7 @@ func New(
 	// NOTE: Distr and Slashing must be created before calling the Hooks method to avoid returning a Keeper without its table generated
 	app.StakingKeeper = stakingKeeper
 
-	// exrp keepers
+	// cbdc keepers
 	app.PoaKeeper = *poakeeper.NewKeeper(
 		appCodec,
 		app.GetSubspace(poatypes.ModuleName),
@@ -667,7 +667,7 @@ func New(
 		vmmod.NewAppModule(app.EvmKeeper, app.AccountKeeper, app.BankKeeper, app.AccountKeeper.AddressCodec()),
 		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper),
 
-		// exrp app modules
+		// cbdc app modules
 		poa.NewAppModule(appCodec, app.PoaKeeper, app.BankKeeper, app.StakingKeeper, app.AccountKeeper, app.interfaceRegistry),
 	)
 

@@ -13,5 +13,5 @@ for dir in $proto_dirs; do
 done
 cd ..
 # move proto files to the right places
-cp -r proto/github.com/xrplevm/node/v*/* ./
+cp -r proto/github.com/peersyst/cbdc-node/* ./
 rm -rf proto/github.com

@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	"github.com/peersyst/cbdc-node/x/poa/types"
 	"github.com/stretchr/testify/require"
-	"github.com/xrplevm/node/v10/x/poa/types"
 )
 
 func TestMsgServer_RemoveValidator(t *testing.T) {

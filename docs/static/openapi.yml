@@ -35298,10 +35298,10 @@ paths:
                   additionalProperties: {}
       tags:
         - Query
-  /exrp/poa/params:
+  /cbdc/poa/params:
     get:
       summary: Parameters queries the parameters of the module.
-      operationId: ExrpPoaParams
+      operationId: cbdcPoaParams
       responses:
         '200':
           description: A successful response.
@@ -70373,14 +70373,14 @@ definitions:
               for balances recovered via IBC packets
         title: Params holds parameters for the recovery module
     description: QueryParamsResponse is the response type for the Query/Params RPC method.
-  exrp.poa.MsgAddValidatorResponse:
+  cbdc.poa.MsgAddValidatorResponse:
     type: object
-  exrp.poa.MsgRemoveValidatorResponse:
+  cbdc.poa.MsgRemoveValidatorResponse:
     type: object
-  exrp.poa.Params:
+  cbdc.poa.Params:
     type: object
     description: Params defines the parameters for the module.
-  exrp.poa.QueryParamsResponse:
+  cbdc.poa.QueryParamsResponse:
     type: object
     properties:
       params:

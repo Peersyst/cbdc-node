@@ -7,9 +7,9 @@ import (
 	"github.com/cosmos/evm/testutil/integration/evm/grpc"
 	"github.com/cosmos/evm/testutil/keyring"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
+	"github.com/peersyst/cbdc-node/app"
+	cbdccommon "github.com/peersyst/cbdc-node/testutil/integration/cbdc/common"
 	"github.com/stretchr/testify/suite"
-	"github.com/xrplevm/node/v10/app"
-	exrpcommon "github.com/xrplevm/node/v10/testutil/integration/exrp/common"
 )
 
 type TestSuite struct {
@@ -34,7 +34,7 @@ func (s *TestSuite) SetupTest() {
 	// Check that the network was created successfully
 	kr := keyring.New(5)
 
-	customGenesis := exrpcommon.CustomGenesisState{}
+	customGenesis := cbdccommon.CustomGenesisState{}
 
 	evmGen := evmtypes.DefaultGenesisState()
 
@@ -43,13 +43,13 @@ func (s *TestSuite) SetupTest() {
 	customGenesis[evmtypes.ModuleName] = evmGen
 
 	s.network = NewIntegrationNetwork(
-		exrpcommon.WithPreFundedAccounts(kr.GetAllAccAddrs()...),
-		exrpcommon.WithAmountOfValidators(5),
-		exrpcommon.WithCustomGenesis(customGenesis),
-		exrpcommon.WithBondDenom("apoa"),
-		exrpcommon.WithMaxValidators(7),
-		exrpcommon.WithMinDepositAmt(sdkmath.NewInt(1)),
-		exrpcommon.WithValidatorOperators(kr.GetAllAccAddrs()),
+		cbdccommon.WithPreFundedAccounts(kr.GetAllAccAddrs()...),
+		cbdccommon.WithAmountOfValidators(5),
+		cbdccommon.WithCustomGenesis(customGenesis),
+		cbdccommon.WithBondDenom("apoa"),
+		cbdccommon.WithMaxValidators(7),
+		cbdccommon.WithMinDepositAmt(sdkmath.NewInt(1)),
+		cbdccommon.WithValidatorOperators(kr.GetAllAccAddrs()),
 	)
 	s.Require().NotNil(s.network)
 

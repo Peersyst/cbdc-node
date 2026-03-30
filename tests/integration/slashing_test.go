@@ -8,8 +8,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/address"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
+	"github.com/peersyst/cbdc-node/testutil/integration/cbdc/utils"
 	"github.com/stretchr/testify/require"
-	"github.com/xrplevm/node/v10/testutil/integration/exrp/utils"
 )
 
 // Slashing tests

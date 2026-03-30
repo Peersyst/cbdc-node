@@ -14,9 +14,9 @@ import (
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/peersyst/cbdc-node/testutil/integration/cbdc/utils"
+	poatypes "github.com/peersyst/cbdc-node/x/poa/types"
 	"github.com/stretchr/testify/require"
-	"github.com/xrplevm/node/v10/testutil/integration/exrp/utils"
-	poatypes "github.com/xrplevm/node/v10/x/poa/types"
 )
 
 // AddValidator tests

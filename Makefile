@@ -64,8 +64,8 @@ build_tags_comma_sep := $(subst $(whitespace),$(comma),$(build_tags))
 
 # process linker flags
 
-ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=exrp \
-		  -X github.com/cosmos/cosmos-sdk/version.AppName=exrpd \
+ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=cbdc \
+		  -X github.com/cosmos/cosmos-sdk/version.AppName=cbdcd \
 		  -X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
 		  -X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
 		  -X "github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags_comma_sep)" \
@@ -100,10 +100,10 @@ endif
 all: install lint
 
 install: go.sum
-	go install -mod=readonly $(BUILD_FLAGS) ./cmd/exrpd
+	go install -mod=readonly $(BUILD_FLAGS) ./cmd/cbdcd
 
 build:
-	go build $(BUILD_FLAGS) -o ./bin/exrpd ./cmd/exrpd
+	go build $(BUILD_FLAGS) -o ./bin/cbdcd ./cmd/cbdcd
 
 build-rocksdb:
 	# Make sure to run this command with root permission

@@ -1,27 +1,14 @@
 name: "Pull Request"
 
 on:
-    pull_request:
-        types: [opened, synchronize]
-
-concurrency:
-    # Cancel old runs if there is a new commit in the same branch
-    group: ${{ github.workflow }}-${{ github.ref }}
-    cancel-in-progress: true
+  pull_request:
+    types: [ opened, synchronize ]
 
 jobs:
-    integration:
-        runs-on: ubuntu-latest
-        steps:
-            -   uses: actions/checkout@v2
-            -   uses: docker/setup-qemu-action@v2
-            -   uses: docker/setup-buildx-action@v2
-            # Build docker image
-            - name: Build docker image
-              uses: docker/build-push-action@v4
-              with:
-                  context: .
-                  target: integration
-                  push: false
-                  secrets: |
-                      ssh_key_b64=${{ secrets.SSH_KEY_B64 }}
+  build-docker:
+    uses: ./.github/workflows/build-docker.yml
+    secrets: inherit
+    with:
+      push: false
+      tag: ${{ github.sha }}
+      target: integration

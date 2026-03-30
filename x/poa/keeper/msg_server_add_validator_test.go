@@ -8,9 +8,9 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/golang/mock/gomock"
+	"github.com/peersyst/cbdc-node/x/poa/testutil"
+	"github.com/peersyst/cbdc-node/x/poa/types"
 	"github.com/stretchr/testify/require"
-	"github.com/xrplevm/node/v10/x/poa/testutil"
-	"github.com/xrplevm/node/v10/x/poa/types"
 )
 
 func TestMsgServer_AddValidator(t *testing.T) {

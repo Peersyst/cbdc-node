@@ -8,8 +8,8 @@ import (
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/cosmos/cosmos-sdk/types/address"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
+	"github.com/peersyst/cbdc-node/x/poa/types"
 	"github.com/stretchr/testify/require"
-	"github.com/xrplevm/node/v10/x/poa/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )

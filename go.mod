@@ -1,4 +1,4 @@
-module github.com/xrplevm/node/v10
+module github.com/peersyst/cbdc-node
 
 go 1.23.8
 

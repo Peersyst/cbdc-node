@@ -12,71 +12,71 @@ import (
 	feemarkettypes "github.com/cosmos/evm/x/feemarket/types"
 	precisebanktypes "github.com/cosmos/evm/x/precisebank/types"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
-	exrpcommon "github.com/xrplevm/node/v10/testutil/integration/exrp/common"
-	exrpintegration "github.com/xrplevm/node/v10/testutil/integration/exrp/integration"
-	poatypes "github.com/xrplevm/node/v10/x/poa/types"
+	cbdccommon "github.com/peersyst/cbdc-node/testutil/integration/cbdc/common"
+	cbdcintegration "github.com/peersyst/cbdc-node/testutil/integration/cbdc/integration"
+	poatypes "github.com/peersyst/cbdc-node/x/poa/types"
 )
 
 // TODO: Update when migrating to v10
-var _ exrpintegration.Network = (*Network)(nil)
+var _ cbdcintegration.Network = (*Network)(nil)
 
 type Network struct {
-	exrpintegration.IntegrationNetwork
+	cbdcintegration.IntegrationNetwork
 }
 
-func NewIntegrationNetwork(opts ...exrpcommon.ConfigOption) *Network {
-	network := exrpintegration.New(opts...)
+func NewIntegrationNetwork(opts ...cbdccommon.ConfigOption) *Network {
+	network := cbdcintegration.New(opts...)
 	return &Network{
 		IntegrationNetwork: *network,
 	}
 }
 
 func (n *Network) SetupSdkConfig() {
-	exrpcommon.SetupSdkConfig()
+	cbdccommon.SetupSdkConfig()
 }
 
 func (n *Network) GetERC20Client() erc20types.QueryClient {
-	return exrpcommon.GetERC20Client(n)
+	return cbdccommon.GetERC20Client(n)
 }
 
 func (n *Network) GetEvmClient() evmtypes.QueryClient {
-	return exrpcommon.GetEvmClient(n)
+	return cbdccommon.GetEvmClient(n)
 }
 
 func (n *Network) GetGovClient() govtypes.QueryClient {
-	return exrpcommon.GetGovClient(n)
+	return cbdccommon.GetGovClient(n)
 }
 
 func (n *Network) GetBankClient() banktypes.QueryClient {
-	return exrpcommon.GetBankClient(n)
+	return cbdccommon.GetBankClient(n)
 }
 
 func (n *Network) GetFeeMarketClient() feemarkettypes.QueryClient {
-	return exrpcommon.GetFeeMarketClient(n)
+	return cbdccommon.GetFeeMarketClient(n)
 }
 
 func (n *Network) GetAuthClient() authtypes.QueryClient {
-	return exrpcommon.GetAuthClient(n)
+	return cbdccommon.GetAuthClient(n)
 }
 
 func (n *Network) GetAuthzClient() authz.QueryClient {
-	return exrpcommon.GetAuthzClient(n)
+	return cbdccommon.GetAuthzClient(n)
 }
 
 func (n *Network) GetStakingClient() stakingtypes.QueryClient {
-	return exrpcommon.GetStakingClient(n)
+	return cbdccommon.GetStakingClient(n)
 }
 
 func (n *Network) GetSlashingClient() slashingtypes.QueryClient {
-	return exrpcommon.GetSlashingClient(n)
+	return cbdccommon.GetSlashingClient(n)
 }
 
 func (n *Network) GetDistrClient() distrtypes.QueryClient {
-	return exrpcommon.GetDistrClient(n)
+	return cbdccommon.GetDistrClient(n)
 }
 
 func (n *Network) GetPoaClient() poatypes.QueryClient {
-	return exrpcommon.GetPoaClient(n)
+	return cbdccommon.GetPoaClient(n)
 }
 
 // Not needed

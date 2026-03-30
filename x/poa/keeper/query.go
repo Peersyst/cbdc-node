@@ -1,7 +1,7 @@
 package keeper
 
 import (
-	"github.com/xrplevm/node/v10/x/poa/types"
+	"github.com/peersyst/cbdc-node/x/poa/types"
 )
 
 var _ types.QueryServer = Keeper{}

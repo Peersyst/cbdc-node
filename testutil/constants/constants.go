@@ -15,7 +15,7 @@ const (
 
 var (
 	LocalnetChainID = testconstants.ChainID{
-		ChainID:    "exrp_1449999-1",
+		ChainID:    "cbdc_1449999-1",
 		EVMChainID: 1449999,
 	}
 
