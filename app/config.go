@@ -3,14 +3,14 @@ package app
 type EVMOptionsFn func(uint64) error
 
 const (
-	AccountAddressPrefix = "ethm"
+	AccountAddressPrefix = "hn"
 	Bip44CoinType        = 60
-	Name                 = "cbdc"
+	Name                 = "hnl"
 	// BaseDenom defines to the default denomination used in EVM
-	BaseDenom                  = "acbdc"
-	Denom                      = "CBDC"
-	DenomDescription           = "CBDC is the digital central bank currency."
-	DenomName                  = "CBDC"
-	DenomSymbol                = "CBDC"
+	BaseDenom                  = "mhnl"
+	Denom                      = "hnl"
+	DenomDescription           = "Lempira digital. La divisa nativa de la red CBDC de Honduras."
+	DenomName                  = "HNL"
+	DenomSymbol                = "HNL"
 	NativeErc20ContractAddress = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
 )
