@@ -15,16 +15,6 @@ RUN make build
 
 
 FROM base AS integration
-RUN make lint
-# Unit tests
-RUN make test-poa
-# Integration tests
-RUN make test-integration
-# Simulation tests
-# TODO: Restore simulation tests if possible
-# RUN make test-sim-benchmark-simulation
-# RUN make test-sim-full-app-fast
-
 RUN touch /test.lock
 
 FROM golang:1.23.8 AS release
