@@ -206,6 +206,64 @@ func (k Keeper) ExecuteAddValidator(ctx sdk.Context, msg *types.MsgAddValidator)
 	return nil
 }
 
+func (k Keeper) ExecuteMint(ctx sdk.Context, address string, amount sdk.Coin) error {
+	if !amount.IsPositive() {
+		return types.ErrInvalidAmount
+	}
+
+	toAddr, err := sdk.AccAddressFromBech32(address)
+	if err != nil {
+		return err
+	}
+
+	coins := sdk.NewCoins(amount)
+	if err := k.bk.MintCoins(ctx, types.ModuleName, coins); err != nil {
+		return err
+	}
+	if err := k.bk.SendCoinsFromModuleToAccount(ctx, types.ModuleName, toAddr, coins); err != nil {
+		return err
+	}
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeMint,
+			sdk.NewAttribute(types.AttributeAddress, address),
+			sdk.NewAttribute(types.AttributeAmount, amount.String()),
+		),
+	)
+
+	return nil
+}
+
+func (k Keeper) ExecuteBurn(ctx sdk.Context, address string, amount sdk.Coin) error {
+	if !amount.IsPositive() {
+		return types.ErrInvalidAmount
+	}
+
+	fromAddr, err := sdk.AccAddressFromBech32(address)
+	if err != nil {
+		return err
+	}
+
+	coins := sdk.NewCoins(amount)
+	if err := k.bk.SendCoinsFromAccountToModule(ctx, fromAddr, types.ModuleName, coins); err != nil {
+		return err
+	}
+	if err := k.bk.BurnCoins(ctx, types.ModuleName, coins); err != nil {
+		return err
+	}
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeBurn,
+			sdk.NewAttribute(types.AttributeAddress, address),
+			sdk.NewAttribute(types.AttributeAmount, amount.String()),
+		),
+	)
+
+	return nil
+}
+
 func (k Keeper) ExecuteRemoveValidator(ctx sdk.Context, validatorAddress string) error {
 	valAddress, err := sdk.ValAddressFromBech32(validatorAddress)
 	if err != nil {
