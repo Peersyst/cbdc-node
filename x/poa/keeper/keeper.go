@@ -237,7 +237,7 @@ func (k Keeper) ExecuteMint(ctx sdk.Context, address string, amount sdk.Coin) er
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeMint,
-			sdk.NewAttribute(types.AttributeAddress, address),
+			sdk.NewAttribute(types.AttributeAddress, toAddr.String()),
 			sdk.NewAttribute(types.AttributeAmount, amount.String()),
 		),
 	)
@@ -269,7 +269,7 @@ func (k Keeper) ExecuteBurn(ctx sdk.Context, address string, amount sdk.Coin) er
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeBurn,
-			sdk.NewAttribute(types.AttributeAddress, address),
+			sdk.NewAttribute(types.AttributeAddress, fromAddr.String()),
 			sdk.NewAttribute(types.AttributeAmount, amount.String()),
 		),
 	)
