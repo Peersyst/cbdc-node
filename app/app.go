@@ -469,6 +469,7 @@ func New(
 		app.BankKeeper,
 		app.StakingKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		BaseDenom,
 	)
 
 	// Ethermint keepers

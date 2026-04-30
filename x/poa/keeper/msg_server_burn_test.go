@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestMsgServer_Burn(t *testing.T) {
+func TestMsgServer_Burn(t *testing.T) { //nolint:dupl
 	poaKeeper, ctx := poaKeeperTestSetup(t)
 	msgServer := NewMsgServerImpl(*poaKeeper)
 
@@ -28,28 +28,35 @@ func TestMsgServer_Burn(t *testing.T) {
 			name:        "should fail - invalid authority",
 			authority:   "invalidauthority",
 			address:     "ethm1a0pd5cyew47pvgf7rd7axxy3humv9ev0nnkprp",
-			amount:      sdk.NewCoin("XRP", math.NewInt(100)),
+			amount:      sdk.NewCoin(testCBDCDenom, math.NewInt(100)),
 			expectedErr: govtypes.ErrInvalidSigner,
 		},
 		{
 			name:        "should fail - invalid address",
 			authority:   poaKeeper.GetAuthority(),
 			address:     "invalidaddress",
-			amount:      sdk.NewCoin("XRP", math.NewInt(100)),
+			amount:      sdk.NewCoin(testCBDCDenom, math.NewInt(100)),
 			expectedErr: errors.New("decoding bech32 failed"),
 		},
 		{
 			name:        "should fail - zero amount",
 			authority:   poaKeeper.GetAuthority(),
 			address:     "ethm1a0pd5cyew47pvgf7rd7axxy3humv9ev0nnkprp",
-			amount:      sdk.NewCoin("XRP", math.NewInt(0)),
+			amount:      sdk.NewCoin(testCBDCDenom, math.NewInt(0)),
 			expectedErr: types.ErrInvalidAmount,
+		},
+		{
+			name:        "should fail - wrong denom",
+			authority:   poaKeeper.GetAuthority(),
+			address:     "ethm1a0pd5cyew47pvgf7rd7axxy3humv9ev0nnkprp",
+			amount:      sdk.NewCoin("axrp", math.NewInt(100)),
+			expectedErr: types.ErrInvalidDenom,
 		},
 		{
 			name:      "should pass",
 			authority: poaKeeper.GetAuthority(),
 			address:   "ethm1a0pd5cyew47pvgf7rd7axxy3humv9ev0nnkprp",
-			amount:    sdk.NewCoin("XRP", math.NewInt(100)),
+			amount:    sdk.NewCoin(testCBDCDenom, math.NewInt(100)),
 		},
 	}
 
@@ -83,21 +90,28 @@ func TestKeeper_ExecuteBurn(t *testing.T) {
 		{
 			name:          "should fail - zero amount",
 			address:       "ethm1a0pd5cyew47pvgf7rd7axxy3humv9ev0nnkprp",
-			amount:        sdk.NewCoin("XRP", math.NewInt(0)),
+			amount:        sdk.NewCoin(testCBDCDenom, math.NewInt(0)),
 			bankMocks:     func(_ sdk.Context, _ *testutil.MockBankKeeper) {},
 			expectedError: types.ErrInvalidAmount,
 		},
 		{
+			name:          "should fail - wrong denom",
+			address:       "ethm1a0pd5cyew47pvgf7rd7axxy3humv9ev0nnkprp",
+			amount:        sdk.NewCoin("axrp", math.NewInt(100)),
+			bankMocks:     func(_ sdk.Context, _ *testutil.MockBankKeeper) {},
+			expectedError: types.ErrInvalidDenom,
+		},
+		{
 			name:          "should fail - invalid address",
 			address:       "invalidaddress",
-			amount:        sdk.NewCoin("XRP", math.NewInt(100)),
+			amount:        sdk.NewCoin(testCBDCDenom, math.NewInt(100)),
 			bankMocks:     func(_ sdk.Context, _ *testutil.MockBankKeeper) {},
 			expectedError: errors.New("decoding bech32 failed"),
 		},
 		{
 			name:    "should fail - SendCoinsFromAccountToModule returns error",
 			address: "ethm1a0pd5cyew47pvgf7rd7axxy3humv9ev0nnkprp",
-			amount:  sdk.NewCoin("XRP", math.NewInt(100)),
+			amount:  sdk.NewCoin(testCBDCDenom, math.NewInt(100)),
 			bankMocks: func(ctx sdk.Context, bankKeeper *testutil.MockBankKeeper) {
 				bankKeeper.EXPECT().SendCoinsFromAccountToModule(ctx, gomock.Any(), gomock.Any(), gomock.Any()).Return(errors.New("bank send error"))
 			},
@@ -106,7 +120,7 @@ func TestKeeper_ExecuteBurn(t *testing.T) {
 		{
 			name:    "should fail - BurnCoins returns error",
 			address: "ethm1a0pd5cyew47pvgf7rd7axxy3humv9ev0nnkprp",
-			amount:  sdk.NewCoin("XRP", math.NewInt(100)),
+			amount:  sdk.NewCoin(testCBDCDenom, math.NewInt(100)),
 			bankMocks: func(ctx sdk.Context, bankKeeper *testutil.MockBankKeeper) {
 				bankKeeper.EXPECT().SendCoinsFromAccountToModule(ctx, gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 				bankKeeper.EXPECT().BurnCoins(ctx, gomock.Any(), gomock.Any()).Return(errors.New("bank burn error"))
@@ -116,9 +130,9 @@ func TestKeeper_ExecuteBurn(t *testing.T) {
 		{
 			name:    "should pass",
 			address: "ethm1a0pd5cyew47pvgf7rd7axxy3humv9ev0nnkprp",
-			amount:  sdk.NewCoin("XRP", math.NewInt(100)),
+			amount:  sdk.NewCoin(testCBDCDenom, math.NewInt(100)),
 			bankMocks: func(ctx sdk.Context, bankKeeper *testutil.MockBankKeeper) {
-				coins := sdk.NewCoins(sdk.NewCoin("XRP", math.NewInt(100)))
+				coins := sdk.NewCoins(sdk.NewCoin(testCBDCDenom, math.NewInt(100)))
 				bankKeeper.EXPECT().SendCoinsFromAccountToModule(ctx, gomock.Any(), types.ModuleName, coins).Return(nil)
 				bankKeeper.EXPECT().BurnCoins(ctx, types.ModuleName, coins).Return(nil)
 			},

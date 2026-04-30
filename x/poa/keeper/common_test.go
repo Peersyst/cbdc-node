@@ -22,6 +22,7 @@ import (
 const (
 	accountAddressPrefix = "ethm"
 	bip44CoinType        = 60
+	testCBDCDenom        = "acbdc"
 )
 
 func setupSdkConfig() {
@@ -83,6 +84,7 @@ func getMockedPoAKeeper(t *testing.T, key *storetypes.KVStoreKey, tsKey *storety
 		bankKeeper,
 		stakingKeeper,
 		"ethm1wunfhl05vc8r8xxnnp8gt62wa54r6y52pg03zq",
+		testCBDCDenom,
 	)
 	poaKeeper.SetParams(ctx, types.DefaultParams())
 	types.RegisterMsgServer(msr, NewMsgServerImpl(*poaKeeper))
