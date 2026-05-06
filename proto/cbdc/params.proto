@@ -1,0 +1,7 @@
+syntax = "proto3";
+package cbdc;
+
+option go_package = "github.com/peersyst/cbdc-node/x/cbdc/types";
+
+// Params defines the parameters for the module.
+message Params {}

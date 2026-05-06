@@ -47,6 +47,7 @@ jq '.app_state["staking"]["params"]["bond_denom"]="apoa"' "$GENESIS" >"$TMP_GENE
 jq '.app_state["staking"]["params"]["unbonding_time"]="60s"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 jq '.app_state["feemarket"]["params"]["base_fee"]="'${BASEFEE}'"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 jq '.app_state["feemarket"]["params"]["no_base_fee"]=true' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+jq '.app_state["feemarket"]["params"]["min_gas_price"]="0.000000000000000000"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
 jq '.app_state.bank.denom_metadata=[{"description":"XRP is the gas token","denom_units":[{"denom":"axrp"},{"denom":"xrp","exponent":18}],"base":"axrp","display":"xrp","name":"XRP","symbol":"XRP"}]' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
@@ -63,7 +64,7 @@ bin/cbdcd --home "$HOMEDIR" genesis add-genesis-account "$(bin/cbdcd --home "$HO
 
 bin/cbdcd --home "$HOMEDIR" genesis add-genesis-account "ethm1zrxl239wa6ad5xge3gs68rt98227xgnjq0xyw2" 1000000000000000000000000000axrp --keyring-backend "$KEYRING"
 
-bin/cbdcd --home "$HOMEDIR" genesis gentx alice 1000000apoa --gas-prices ${BASEFEE}axrp --keyring-backend "$KEYRING" --chain-id "$CHAINID"
+bin/cbdcd --home "$HOMEDIR" genesis gentx alice 1000000apoa --fees ${BASEFEE}axrp --gas 1000000 --keyring-backend "$KEYRING" --chain-id "$CHAINID"
 
 bin/cbdcd --home "$HOMEDIR" genesis collect-gentxs
 
