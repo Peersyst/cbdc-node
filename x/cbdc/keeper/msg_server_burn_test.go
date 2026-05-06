@@ -8,14 +8,14 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/golang/mock/gomock"
-	"github.com/peersyst/cbdc-node/x/poa/testutil"
-	"github.com/peersyst/cbdc-node/x/poa/types"
+	"github.com/peersyst/cbdc-node/x/cbdc/testutil"
+	"github.com/peersyst/cbdc-node/x/cbdc/types"
 	"github.com/stretchr/testify/require"
 )
 
 func TestMsgServer_Burn(t *testing.T) { //nolint:dupl
-	poaKeeper, ctx := poaKeeperTestSetup(t)
-	msgServer := NewMsgServerImpl(*poaKeeper)
+	cbdcKeeper, ctx := cbdcKeeperTestSetup(t)
+	msgServer := NewMsgServerImpl(*cbdcKeeper)
 
 	tt := []struct {
 		name        string
@@ -33,28 +33,28 @@ func TestMsgServer_Burn(t *testing.T) { //nolint:dupl
 		},
 		{
 			name:        "should fail - invalid address",
-			authority:   poaKeeper.GetAuthority(),
+			authority:   cbdcKeeper.GetAuthority(),
 			address:     "invalidaddress",
 			amount:      sdk.NewCoin(testCBDCDenom, math.NewInt(100)),
 			expectedErr: errors.New("decoding bech32 failed"),
 		},
 		{
 			name:        "should fail - zero amount",
-			authority:   poaKeeper.GetAuthority(),
+			authority:   cbdcKeeper.GetAuthority(),
 			address:     "ethm1a0pd5cyew47pvgf7rd7axxy3humv9ev0nnkprp",
 			amount:      sdk.NewCoin(testCBDCDenom, math.NewInt(0)),
 			expectedErr: types.ErrInvalidAmount,
 		},
 		{
 			name:        "should fail - wrong denom",
-			authority:   poaKeeper.GetAuthority(),
+			authority:   cbdcKeeper.GetAuthority(),
 			address:     "ethm1a0pd5cyew47pvgf7rd7axxy3humv9ev0nnkprp",
 			amount:      sdk.NewCoin("axrp", math.NewInt(100)),
 			expectedErr: types.ErrInvalidDenom,
 		},
 		{
 			name:      "should pass",
-			authority: poaKeeper.GetAuthority(),
+			authority: cbdcKeeper.GetAuthority(),
 			address:   "ethm1a0pd5cyew47pvgf7rd7axxy3humv9ev0nnkprp",
 			amount:    sdk.NewCoin(testCBDCDenom, math.NewInt(100)),
 		},
@@ -141,7 +141,7 @@ func TestKeeper_ExecuteBurn(t *testing.T) {
 
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
-			keeper, ctx := setupPoaKeeper(t, func(_ sdk.Context, _ *testutil.MockStakingKeeper) {}, tc.bankMocks)
+			keeper, ctx := setupCbdcKeeper(t, tc.bankMocks)
 
 			err := keeper.ExecuteBurn(ctx, tc.address, tc.amount)
 			if tc.expectedError != nil {

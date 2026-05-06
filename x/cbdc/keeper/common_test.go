@@ -6,22 +6,20 @@ import (
 
 	storetypes "cosmossdk.io/store/types"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	"github.com/cosmos/cosmos-sdk/baseapp"
 
 	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/golang/mock/gomock"
-	"github.com/peersyst/cbdc-node/x/poa/testutil"
-	"github.com/peersyst/cbdc-node/x/poa/types"
-
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/peersyst/cbdc-node/x/cbdc/testutil"
+	"github.com/peersyst/cbdc-node/x/cbdc/types"
 )
 
 const (
 	accountAddressPrefix = "ethm"
 	bip44CoinType        = 60
+	testCBDCDenom        = "acbdc"
 )
 
 func setupSdkConfig() {
@@ -31,20 +29,12 @@ func setupSdkConfig() {
 	consNodeAddressPrefix := accountAddressPrefix + "valcons"
 	consNodePubKeyPrefix := accountAddressPrefix + "valconspub"
 
-	// Set config
 	config := sdk.GetConfig()
 	config.SetBech32PrefixForAccount(accountAddressPrefix, accountPubKeyPrefix)
 	config.SetBech32PrefixForValidator(validatorAddressPrefix, validatorPubKeyPrefix)
 	config.SetBech32PrefixForConsensusNode(consNodeAddressPrefix, consNodePubKeyPrefix)
 	config.SetCoinType(bip44CoinType)
-	config.SetPurpose(sdk.Purpose) // Shared
-}
-
-func getStakingKeeperMock(t *testing.T, ctx sdk.Context, setExpectations func(ctx sdk.Context, stakingKeeper *testutil.MockStakingKeeper)) *testutil.MockStakingKeeper {
-	ctrl := gomock.NewController(t)
-	stakingKeeper := testutil.NewMockStakingKeeper(ctrl)
-	setExpectations(ctx, stakingKeeper)
-	return stakingKeeper
+	config.SetPurpose(sdk.Purpose)
 }
 
 func getBankKeeperMock(t *testing.T, ctx sdk.Context, setExpectations func(ctx sdk.Context, bankKeeper *testutil.MockBankKeeper)) *testutil.MockBankKeeper {
@@ -62,42 +52,40 @@ func getCtxMock(t *testing.T, key *storetypes.KVStoreKey, tsKey *storetypes.Tran
 	return ctx
 }
 
-func getMockedPoAKeeper(t *testing.T, key *storetypes.KVStoreKey, tsKey *storetypes.TransientStoreKey, ctx sdk.Context, stakingKeeper *testutil.MockStakingKeeper, bankKeeper *testutil.MockBankKeeper) *Keeper {
+func getMockedCbdcKeeper(_ *testing.T, key *storetypes.KVStoreKey, tsKey *storetypes.TransientStoreKey, ctx sdk.Context, bankKeeper *testutil.MockBankKeeper) *Keeper {
 	encCfg := moduletestutil.MakeTestEncodingConfig()
 
 	types.RegisterInterfaces(encCfg.InterfaceRegistry)
-	stakingtypes.RegisterInterfaces(encCfg.InterfaceRegistry)
 
-	msr := baseapp.NewMsgServiceRouter()
-	msr.SetInterfaceRegistry(encCfg.InterfaceRegistry)
-
-	ctrl := gomock.NewController(t)
-	stakingMsr := testutil.NewMockStakingMsgServer(ctrl)
-
-	stakingMsr.EXPECT().CreateValidator(gomock.Any(), gomock.Any()).Return(&stakingtypes.MsgCreateValidatorResponse{}, nil).AnyTimes()
-
-	poaKeeper := NewKeeper(
+	cbdcKeeper := NewKeeper(
 		encCfg.Codec,
-		paramtypes.NewSubspace(encCfg.Codec, encCfg.Amino, key, tsKey, "poa"),
-		msr,
+		paramtypes.NewSubspace(encCfg.Codec, encCfg.Amino, key, tsKey, "cbdc"),
 		bankKeeper,
-		stakingKeeper,
 		"ethm1wunfhl05vc8r8xxnnp8gt62wa54r6y52pg03zq",
+		testCBDCDenom,
 	)
-	poaKeeper.SetParams(ctx, types.DefaultParams())
-	types.RegisterMsgServer(msr, NewMsgServerImpl(*poaKeeper))
-	stakingtypes.RegisterMsgServer(msr, stakingMsr)
+	cbdcKeeper.SetParams(ctx, types.DefaultParams())
 
-	return poaKeeper
+	return cbdcKeeper
 }
 
-func setupPoaKeeper(t *testing.T, setStakingExpectations func(ctx sdk.Context, stakingKeeper *testutil.MockStakingKeeper), setBankExpectations func(ctx sdk.Context, bankKeeper *testutil.MockBankKeeper)) (*Keeper, sdk.Context) {
+func setupCbdcKeeper(t *testing.T, setBankExpectations func(ctx sdk.Context, bankKeeper *testutil.MockBankKeeper)) (*Keeper, sdk.Context) {
 	key := storetypes.NewKVStoreKey(types.StoreKey)
 	tsKey := storetypes.NewTransientStoreKey("test")
 
 	ctx := getCtxMock(t, key, tsKey)
-	stakingKeeper := getStakingKeeperMock(t, ctx, setStakingExpectations)
 	bankKeeper := getBankKeeperMock(t, ctx, setBankExpectations)
 
-	return getMockedPoAKeeper(t, key, tsKey, ctx, stakingKeeper, bankKeeper), ctx
+	return getMockedCbdcKeeper(t, key, tsKey, ctx, bankKeeper), ctx
+}
+
+func cbdcKeeperTestSetup(t *testing.T) (*Keeper, sdk.Context) {
+	bankExpectations := func(ctx sdk.Context, bankKeeper *testutil.MockBankKeeper) {
+		bankKeeper.EXPECT().MintCoins(ctx, gomock.Any(), gomock.Any()).Return(nil).AnyTimes()
+		bankKeeper.EXPECT().SendCoinsFromModuleToAccount(ctx, gomock.Any(), gomock.Any(), gomock.Any()).Return(nil).AnyTimes()
+		bankKeeper.EXPECT().BurnCoins(ctx, gomock.Any(), gomock.Any()).Return(nil).AnyTimes()
+		bankKeeper.EXPECT().SendCoinsFromAccountToModule(ctx, gomock.Any(), gomock.Any(), gomock.Any()).Return(nil).AnyTimes()
+	}
+
+	return setupCbdcKeeper(t, bankExpectations)
 }

@@ -15,6 +15,4 @@ var (
 	ErrInvalidValidatorStatus    = sdkerrors.Register(ModuleName, 5, "invalid validator status")
 	ErrAddressIsNotAValidator    = sdkerrors.Register(ModuleName, 6, "address is not a validator")
 	ErrMaxValidatorsReached      = sdkerrors.Register(ModuleName, 7, "maximum number of validators reached")
-	ErrInvalidAmount             = sdkerrors.Register(ModuleName, 8, "amount must be positive")
-	ErrInvalidDenom              = sdkerrors.Register(ModuleName, 9, "amount denom must match the configured CBDC denom")
 )

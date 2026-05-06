@@ -38,7 +38,6 @@ type (
 		router     *baseapp.MsgServiceRouter // Msg server router
 		bk         types.BankKeeper
 		sk         types.StakingKeeper
-		cbdcDenom  string // the only denom that can be minted/burned via this module
 	}
 )
 
@@ -49,7 +48,6 @@ func NewKeeper(
 	bk types.BankKeeper,
 	sk types.StakingKeeper,
 	authority string,
-	cbdcDenom string,
 ) *Keeper {
 	// set KeyTable if it has not already been set
 	if !ps.HasKeyTable() {
@@ -61,10 +59,6 @@ func NewKeeper(
 		panic(err)
 	}
 
-	if err := sdk.ValidateDenom(cbdcDenom); err != nil {
-		panic(err)
-	}
-
 	return &Keeper{
 		cdc:        cdc,
 		paramstore: ps,
@@ -72,7 +66,6 @@ func NewKeeper(
 		router:     router,
 		bk:         bk,
 		sk:         sk,
-		cbdcDenom:  cbdcDenom,
 	}
 }
 
@@ -207,70 +200,6 @@ func (k Keeper) ExecuteAddValidator(ctx sdk.Context, msg *types.MsgAddValidator)
 			sdk.NewAttribute(types.AttributeHeight, fmt.Sprintf("%d", ctx.BlockHeight())),
 			sdk.NewAttribute(types.AttributeStakingTokens, fmt.Sprintf("%d", validator.Tokens)),
 			sdk.NewAttribute(types.AttributeBankTokens, balance.String()),
-		),
-	)
-
-	return nil
-}
-
-func (k Keeper) ExecuteMint(ctx sdk.Context, address string, amount sdk.Coin) error {
-	if amount.Denom != k.cbdcDenom {
-		return types.ErrInvalidDenom
-	}
-	if !amount.IsPositive() {
-		return types.ErrInvalidAmount
-	}
-
-	toAddr, err := sdk.AccAddressFromBech32(address)
-	if err != nil {
-		return err
-	}
-
-	coins := sdk.NewCoins(amount)
-	if err := k.bk.MintCoins(ctx, types.ModuleName, coins); err != nil {
-		return err
-	}
-	if err := k.bk.SendCoinsFromModuleToAccount(ctx, types.ModuleName, toAddr, coins); err != nil {
-		return err
-	}
-
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
-			types.EventTypeMint,
-			sdk.NewAttribute(types.AttributeAddress, toAddr.String()),
-			sdk.NewAttribute(types.AttributeAmount, amount.String()),
-		),
-	)
-
-	return nil
-}
-
-func (k Keeper) ExecuteBurn(ctx sdk.Context, address string, amount sdk.Coin) error {
-	if amount.Denom != k.cbdcDenom {
-		return types.ErrInvalidDenom
-	}
-	if !amount.IsPositive() {
-		return types.ErrInvalidAmount
-	}
-
-	fromAddr, err := sdk.AccAddressFromBech32(address)
-	if err != nil {
-		return err
-	}
-
-	coins := sdk.NewCoins(amount)
-	if err := k.bk.SendCoinsFromAccountToModule(ctx, fromAddr, types.ModuleName, coins); err != nil {
-		return err
-	}
-	if err := k.bk.BurnCoins(ctx, types.ModuleName, coins); err != nil {
-		return err
-	}
-
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
-			types.EventTypeBurn,
-			sdk.NewAttribute(types.AttributeAddress, fromAddr.String()),
-			sdk.NewAttribute(types.AttributeAmount, amount.String()),
 		),
 	)
 

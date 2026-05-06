@@ -9,22 +9,20 @@ import (
 )
 
 func RegisterCodec(cdc *codec.LegacyAmino) {
-	cdc.RegisterConcrete(&MsgAddValidator{}, "poa/AddValidator", nil)
-	cdc.RegisterConcrete(&MsgRemoveValidator{}, "poa/RemoveValidator", nil)
-	// this line is used by starport scaffolding # 2
+	cdc.RegisterConcrete(&MsgMint{}, "cbdc/Mint", nil)
+	cdc.RegisterConcrete(&MsgBurn{}, "cbdc/Burn", nil)
 }
 
 func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil),
-		&MsgAddValidator{},
+		&MsgMint{},
 	)
 	registry.RegisterImplementations((*sdk.Msg)(nil),
-		&MsgRemoveValidator{},
+		&MsgBurn{},
 	)
 	registry.RegisterImplementations(
 		(*govtypes.Content)(nil),
 	)
-	// this line is used by starport scaffolding # 3
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
 }
