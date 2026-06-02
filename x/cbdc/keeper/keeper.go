@@ -68,6 +68,9 @@ func (k Keeper) GetAuthority() string {
 }
 
 func (k Keeper) ExecuteMint(ctx sdk.Context, address string, amount sdk.Coin) error {
+	if err := amount.Validate(); err != nil {
+		return err
+	}
 	if amount.Denom != k.cbdcDenom {
 		return types.ErrInvalidDenom
 	}
@@ -100,6 +103,9 @@ func (k Keeper) ExecuteMint(ctx sdk.Context, address string, amount sdk.Coin) er
 }
 
 func (k Keeper) ExecuteBurn(ctx sdk.Context, address string, amount sdk.Coin) error {
+	if err := amount.Validate(); err != nil {
+		return err
+	}
 	if amount.Denom != k.cbdcDenom {
 		return types.ErrInvalidDenom
 	}
