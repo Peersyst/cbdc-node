@@ -1,4 +1,4 @@
-package types
+package types //nolint:dupl // mint/burn tests are structurally similar by design
 
 import (
 	"testing"
@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestMsgMint_ValidateBasic(t *testing.T) { //nolint:dupl
+func TestMsgMint_ValidateBasic(t *testing.T) {
 	tt := []struct {
 		name      string
 		msg       MsgMint
