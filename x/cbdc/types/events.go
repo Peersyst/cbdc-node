@@ -1,8 +1,9 @@
 package types
 
 const (
-	EventTypeMint    = "mint"
-	EventTypeBurn    = "burn"
+	EventTypeMint    = "cbdc_mint"
+	EventTypeBurn    = "cbdc_burn"
+	AttributeOwner   = "owner"
 	AttributeAddress = "address"
 	AttributeAmount  = "amount"
 )

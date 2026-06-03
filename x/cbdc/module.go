@@ -12,6 +12,7 @@ import (
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/peersyst/cbdc-node/x/cbdc/keeper"
 	"github.com/peersyst/cbdc-node/x/cbdc/types"
@@ -73,7 +74,6 @@ func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *r
 type AppModule struct {
 	AppModuleBasic
 	keeper   keeper.Keeper
-	bk       types.BankKeeper
 	ak       types.AccountKeeper
 	registry cdctypes.InterfaceRegistry
 }
@@ -81,14 +81,12 @@ type AppModule struct {
 func NewAppModule(
 	cdc codec.Codec,
 	keeper keeper.Keeper,
-	bk types.BankKeeper,
 	ak types.AccountKeeper,
 	registry cdctypes.InterfaceRegistry,
 ) AppModule {
 	return AppModule{
 		AppModuleBasic: NewAppModuleBasic(cdc),
 		keeper:         keeper,
-		bk:             bk,
 		ak:             ak,
 		registry:       registry,
 	}
@@ -96,10 +94,27 @@ func NewAppModule(
 
 func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
-	types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
+	types.RegisterQueryServer(cfg.QueryServer(), keeper.NewQuerier(am.keeper))
 }
 
-func (am AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
+func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {
+	ir.RegisterRoute(types.ModuleName, "module-account-exists", am.moduleAccountInvariant())
+}
+
+// moduleAccountInvariant checks that the cbdc module account still exists.
+// If it were ever wiped, MintCoins/BurnCoins would fail at runtime, so this
+// halts the chain instead. The account is created in InitGenesis.
+func (am AppModule) moduleAccountInvariant() sdk.Invariant {
+	return func(ctx sdk.Context) (string, bool) {
+		addr := authtypes.NewModuleAddress(types.ModuleName)
+		broken := am.ak.GetAccount(ctx, addr) == nil
+		return sdk.FormatInvariant(
+			types.ModuleName,
+			"module-account-exists",
+			fmt.Sprintf("cbdc module account %s does not exist\n", addr),
+		), broken
+	}
+}
 
 func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, gs json.RawMessage) {
 	var genState types.GenesisState

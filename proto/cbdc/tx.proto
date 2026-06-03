@@ -21,9 +21,9 @@ service Msg {
 
 // MsgMint defines a message to mint CBDC tokens and send them to an address
 message MsgMint {
-  option (cosmos.msg.v1.signer) = "authority";
+  option (cosmos.msg.v1.signer) = "owner";
 
-  string authority = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+  string owner = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
   string address = 2 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
   cosmos.base.v1beta1.Coin amount = 3
       [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
@@ -33,9 +33,9 @@ message MsgMintResponse {}
 
 // MsgBurn defines a message to burn CBDC tokens from an address
 message MsgBurn {
-  option (cosmos.msg.v1.signer) = "authority";
+  option (cosmos.msg.v1.signer) = "owner";
 
-  string authority = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+  string owner = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
   string address = 2 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
   cosmos.base.v1beta1.Coin amount = 3
       [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];

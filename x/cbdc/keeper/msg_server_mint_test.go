@@ -6,7 +6,6 @@ import (
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/golang/mock/gomock"
 	"github.com/peersyst/cbdc-node/x/cbdc/testutil"
 	"github.com/peersyst/cbdc-node/x/cbdc/types"
@@ -29,7 +28,7 @@ func TestMsgServer_Mint(t *testing.T) { //nolint:dupl
 			authority:   "invalidauthority",
 			address:     "ethm1a0pd5cyew47pvgf7rd7axxy3humv9ev0nnkprp",
 			amount:      sdk.NewCoin(testCBDCDenom, math.NewInt(100)),
-			expectedErr: govtypes.ErrInvalidSigner,
+			expectedErr: types.ErrUnauthorized,
 		},
 		{
 			name:        "should fail - invalid recipient address",
@@ -44,6 +43,14 @@ func TestMsgServer_Mint(t *testing.T) { //nolint:dupl
 			address:     "ethm1a0pd5cyew47pvgf7rd7axxy3humv9ev0nnkprp",
 			amount:      sdk.NewCoin(testCBDCDenom, math.NewInt(0)),
 			expectedErr: types.ErrInvalidAmount,
+		},
+		{
+			// struct literal bypasses sdk.NewCoin, which panics on negatives
+			name:        "should fail - negative amount",
+			authority:   cbdcKeeper.GetAuthority(),
+			address:     "ethm1a0pd5cyew47pvgf7rd7axxy3humv9ev0nnkprp",
+			amount:      sdk.Coin{Denom: testCBDCDenom, Amount: math.NewInt(-100)},
+			expectedErr: errors.New("negative coin amount"),
 		},
 		{
 			name:        "should fail - wrong denom",
@@ -63,9 +70,9 @@ func TestMsgServer_Mint(t *testing.T) { //nolint:dupl
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
 			msg := &types.MsgMint{
-				Authority: tc.authority,
-				Address:   tc.address,
-				Amount:    tc.amount,
+				Owner:   tc.authority,
+				Address: tc.address,
+				Amount:  tc.amount,
 			}
 
 			_, err := msgServer.Mint(ctx, msg)
@@ -143,7 +150,7 @@ func TestKeeper_ExecuteMint(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			keeper, ctx := setupCbdcKeeper(t, tc.bankMocks)
 
-			err := keeper.ExecuteMint(ctx, tc.address, tc.amount)
+			err := keeper.executeMint(ctx, keeper.GetAuthority(), tc.address, tc.amount)
 			if tc.expectedError != nil {
 				require.Error(t, err)
 				require.Contains(t, err.Error(), tc.expectedError.Error())

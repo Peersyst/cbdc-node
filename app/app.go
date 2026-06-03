@@ -696,7 +696,7 @@ func New(
 
 		// cbdc app modules
 		poa.NewAppModule(appCodec, app.PoaKeeper, app.BankKeeper, app.StakingKeeper, app.AccountKeeper, app.interfaceRegistry),
-		cbdc.NewAppModule(appCodec, app.CbdcKeeper, app.BankKeeper, app.AccountKeeper, app.interfaceRegistry),
+		cbdc.NewAppModule(appCodec, app.CbdcKeeper, app.AccountKeeper, app.interfaceRegistry),
 	)
 
 	// BasicModuleManager defines the module BasicManager which is in charge of setting up basic,
@@ -750,7 +750,6 @@ func New(
 		govtypes.ModuleName,
 		stakingtypes.ModuleName,
 		poatypes.ModuleName,
-		cbdctypes.ModuleName,
 		evmtypes.ModuleName,
 		feemarkettypes.ModuleName,
 		erc20types.ModuleName,
@@ -1171,6 +1170,8 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(evmtypes.ModuleName)
 	paramsKeeper.Subspace(feemarkettypes.ModuleName)
 	paramsKeeper.Subspace(erc20types.ModuleName)
+
+	paramsKeeper.Subspace(cbdctypes.ModuleName)
 
 	return paramsKeeper
 }
