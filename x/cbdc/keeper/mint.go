@@ -16,6 +16,12 @@ func (k Keeper) MintCoins(ctx sdk.Context, owner string, address sdk.AccAddress,
 	if !amount.IsPositive() {
 		return types.ErrInvalidAmount
 	}
+	if k.bk.BlockedAddr(address) {
+		return types.ErrBlockedAddr.Wrap(address.String())
+	}
+	if !k.bk.IsSendEnabledCoin(ctx, amount) {
+		return types.ErrSendDisabled.Wrap(amount.Denom)
+	}
 
 	coins := sdk.NewCoins(amount)
 	if err := k.bk.MintCoins(ctx, types.ModuleName, coins); err != nil {

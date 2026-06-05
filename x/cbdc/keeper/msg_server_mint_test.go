@@ -111,10 +111,31 @@ func TestKeeper_MintCoins(t *testing.T) {
 			expectedError: types.ErrInvalidDenom,
 		},
 		{
+			name:    "should fail - blocked recipient address",
+			address: address,
+			amount:  sdk.NewCoin(testCBDCDenom, math.NewInt(100)),
+			bankMocks: func(_ sdk.Context, bankKeeper *testutil.MockBankKeeper) {
+				bankKeeper.EXPECT().BlockedAddr(address).Return(true)
+			},
+			expectedError: types.ErrBlockedAddr,
+		},
+		{
+			name:    "should fail - send disabled for denom",
+			address: address,
+			amount:  sdk.NewCoin(testCBDCDenom, math.NewInt(100)),
+			bankMocks: func(ctx sdk.Context, bankKeeper *testutil.MockBankKeeper) {
+				bankKeeper.EXPECT().BlockedAddr(address).Return(false)
+				bankKeeper.EXPECT().IsSendEnabledCoin(ctx, gomock.Any()).Return(false)
+			},
+			expectedError: types.ErrSendDisabled,
+		},
+		{
 			name:    "should fail - MintCoins returns error",
 			address: address,
 			amount:  sdk.NewCoin(testCBDCDenom, math.NewInt(100)),
 			bankMocks: func(ctx sdk.Context, bankKeeper *testutil.MockBankKeeper) {
+				bankKeeper.EXPECT().BlockedAddr(address).Return(false)
+				bankKeeper.EXPECT().IsSendEnabledCoin(ctx, gomock.Any()).Return(true)
 				bankKeeper.EXPECT().MintCoins(ctx, gomock.Any(), gomock.Any()).Return(errors.New("bank mint error"))
 			},
 			expectedError: errors.New("bank mint error"),
@@ -124,6 +145,8 @@ func TestKeeper_MintCoins(t *testing.T) {
 			address: address,
 			amount:  sdk.NewCoin(testCBDCDenom, math.NewInt(100)),
 			bankMocks: func(ctx sdk.Context, bankKeeper *testutil.MockBankKeeper) {
+				bankKeeper.EXPECT().BlockedAddr(address).Return(false)
+				bankKeeper.EXPECT().IsSendEnabledCoin(ctx, gomock.Any()).Return(true)
 				bankKeeper.EXPECT().MintCoins(ctx, gomock.Any(), gomock.Any()).Return(nil)
 				bankKeeper.EXPECT().SendCoinsFromModuleToAccount(ctx, gomock.Any(), gomock.Any(), gomock.Any()).Return(errors.New("bank send error"))
 			},
@@ -135,6 +158,8 @@ func TestKeeper_MintCoins(t *testing.T) {
 			amount:  sdk.NewCoin(testCBDCDenom, math.NewInt(100)),
 			bankMocks: func(ctx sdk.Context, bankKeeper *testutil.MockBankKeeper) {
 				coins := sdk.NewCoins(sdk.NewCoin(testCBDCDenom, math.NewInt(100)))
+				bankKeeper.EXPECT().BlockedAddr(address).Return(false)
+				bankKeeper.EXPECT().IsSendEnabledCoin(ctx, gomock.Any()).Return(true)
 				bankKeeper.EXPECT().MintCoins(ctx, types.ModuleName, coins).Return(nil)
 				bankKeeper.EXPECT().SendCoinsFromModuleToAccount(ctx, types.ModuleName, gomock.Any(), coins).Return(nil)
 			},

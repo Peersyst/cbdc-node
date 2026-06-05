@@ -85,6 +85,8 @@ func setupCbdcKeeper(t *testing.T, setBankExpectations func(ctx sdk.Context, ban
 
 func cbdcKeeperTestSetup(t *testing.T) (*Keeper, sdk.Context) {
 	bankExpectations := func(ctx sdk.Context, bankKeeper *testutil.MockBankKeeper) {
+		bankKeeper.EXPECT().BlockedAddr(gomock.Any()).Return(false).AnyTimes()
+		bankKeeper.EXPECT().IsSendEnabledCoin(ctx, gomock.Any()).Return(true).AnyTimes()
 		bankKeeper.EXPECT().MintCoins(ctx, gomock.Any(), gomock.Any()).Return(nil).AnyTimes()
 		bankKeeper.EXPECT().SendCoinsFromModuleToAccount(ctx, gomock.Any(), gomock.Any(), gomock.Any()).Return(nil).AnyTimes()
 		bankKeeper.EXPECT().BurnCoins(ctx, gomock.Any(), gomock.Any()).Return(nil).AnyTimes()
