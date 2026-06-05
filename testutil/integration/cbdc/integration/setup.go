@@ -432,7 +432,7 @@ func setDefaultErc20GenesisState(app *app.App, genesisState testutil.GenesisStat
 // default params leave it empty (which fails InitChain by design).
 func setDefaultCbdcGenesisState(app *app.App, genesisState testutil.GenesisState) testutil.GenesisState {
 	cbdcGen := cbdctypes.DefaultGenesis()
-	cbdcGen.Params = cbdctypes.NewParams(authtypes.NewModuleAddress(govtypes.ModuleName).String())
+	cbdcGen.Params = cbdctypes.NewParams(authtypes.NewModuleAddress(govtypes.ModuleName).String(), false)
 	genesisState[cbdctypes.ModuleName] = app.AppCodec().MustMarshalJSON(cbdcGen)
 	return genesisState
 }

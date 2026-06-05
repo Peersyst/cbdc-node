@@ -68,7 +68,7 @@ func getMockedCbdcKeeper(_ *testing.T, key *storetypes.KVStoreKey, tsKey *storet
 		testGovAuthority,
 		testCBDCDenom,
 	)
-	cbdcKeeper.SetParams(ctx, types.NewParams(testOwner))
+	cbdcKeeper.SetParams(ctx, types.NewParams(testOwner, false))
 
 	return cbdcKeeper
 }

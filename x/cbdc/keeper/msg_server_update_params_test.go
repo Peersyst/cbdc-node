@@ -19,25 +19,30 @@ func TestMsgServer_UpdateParams(t *testing.T) {
 		{
 			name:        "should fail - unauthorized authority",
 			authority:   testOwner,
-			params:      types.NewParams(newOwner),
+			params:      types.NewParams(newOwner, false),
 			expectedErr: types.ErrUnauthorized,
 		},
 		{
 			name:        "should fail - invalid owner",
 			authority:   testGovAuthority,
-			params:      types.NewParams("invalidowner"),
+			params:      types.NewParams("invalidowner", false),
 			expectedErr: types.ErrInvalidOwner,
 		},
 		{
 			name:        "should fail - empty owner",
 			authority:   testGovAuthority,
-			params:      types.NewParams(""),
+			params:      types.NewParams("", false),
 			expectedErr: types.ErrInvalidOwner,
 		},
 		{
 			name:      "should pass - rotate owner",
 			authority: testGovAuthority,
-			params:    types.NewParams(newOwner),
+			params:    types.NewParams(newOwner, false),
+		},
+		{
+			name:      "should pass - pause issuance",
+			authority: testGovAuthority,
+			params:    types.NewParams(newOwner, true),
 		},
 	}
 
@@ -59,7 +64,9 @@ func TestMsgServer_UpdateParams(t *testing.T) {
 			}
 
 			require.NoError(t, err)
-			require.Equal(t, tc.params.Owner, cbdcKeeper.GetParams(ctx).Owner)
+			got := cbdcKeeper.GetParams(ctx)
+			require.Equal(t, tc.params.Owner, got.Owner)
+			require.Equal(t, tc.params.IssuancePaused, got.IssuancePaused)
 		})
 	}
 }

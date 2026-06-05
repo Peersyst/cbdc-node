@@ -1,14 +1,21 @@
 package types
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
 var _ paramtypes.ParamSet = (*Params)(nil)
 
-// KeyOwner is the param store key for the mint/burn owner address.
-var KeyOwner = []byte("Owner")
+// Param store keys.
+var (
+	// KeyOwner is the param store key for the mint/burn owner address.
+	KeyOwner = []byte("Owner")
+	// KeyIssuancePaused is the param store key for the issuance pause switch.
+	KeyIssuancePaused = []byte("IssuancePaused")
+)
 
 // ParamKeyTable the param key table for launch module
 func ParamKeyTable() paramtypes.KeyTable {
@@ -16,27 +23,31 @@ func ParamKeyTable() paramtypes.KeyTable {
 }
 
 // NewParams creates a new Params instance
-func NewParams(owner string) Params {
-	return Params{Owner: owner}
+func NewParams(owner string, issuancePaused bool) Params {
+	return Params{Owner: owner, IssuancePaused: issuancePaused}
 }
 
 // DefaultParams returns a default set of parameters. The owner is intentionally
 // empty (and therefore invalid): each chain must set a mint/burn owner in
 // genesis, otherwise InitChain fails rather than booting with no minter.
 func DefaultParams() Params {
-	return NewParams("")
+	return NewParams("", false)
 }
 
 // ParamSetPairs get the params.ParamSet
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
 		paramtypes.NewParamSetPair(KeyOwner, &p.Owner, validateOwner),
+		paramtypes.NewParamSetPair(KeyIssuancePaused, &p.IssuancePaused, validateIssuancePaused),
 	}
 }
 
 // Validate validates the set of params
 func (p *Params) Validate() error {
-	return validateOwner(p.Owner)
+	if err := validateOwner(p.Owner); err != nil {
+		return err
+	}
+	return validateIssuancePaused(p.IssuancePaused)
 }
 
 // validateOwner requires a non-empty, well-formed bech32 address. The owner is
@@ -52,6 +63,14 @@ func validateOwner(i interface{}) error {
 	}
 	if _, err := sdk.AccAddressFromBech32(owner); err != nil {
 		return ErrInvalidOwner.Wrapf("invalid owner address (%s): %s", owner, err)
+	}
+	return nil
+}
+
+// validateIssuancePaused only checks the param is a bool; both values are valid.
+func validateIssuancePaused(i interface{}) error {
+	if _, ok := i.(bool); !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 	return nil
 }

@@ -9,6 +9,9 @@ import (
 // mintingAllowed performs all pre-flight gating for a mint. Keeping it separate
 // from MintCoins makes new gating (e.g. a paused flag) easy to add and audit.
 func (k Keeper) mintingAllowed(ctx sdk.Context, address sdk.AccAddress, amount sdk.Coin) error {
+	if k.GetParams(ctx).IssuancePaused {
+		return types.ErrIssuancePaused
+	}
 	if err := amount.Validate(); err != nil {
 		return err
 	}

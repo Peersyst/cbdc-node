@@ -22,7 +22,7 @@ var (
 // GenerateGenesisState creates a randomized GenState of the module
 func (AppModule) GenerateGenesisState(simState *module.SimulationState) {
 	cbdcGenesis := types.GenesisState{
-		Params: types.NewParams(sample.AccAddress()),
+		Params: types.NewParams(sample.AccAddress(), false),
 	}
 	simState.GenState[types.ModuleName] = simState.Cdc.MustMarshalJSON(&cbdcGenesis)
 }

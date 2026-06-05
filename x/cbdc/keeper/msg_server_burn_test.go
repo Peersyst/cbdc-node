@@ -155,3 +155,12 @@ func TestKeeper_BurnCoins(t *testing.T) {
 		})
 	}
 }
+
+func TestKeeper_BurnCoins_Paused(t *testing.T) {
+	keeper, ctx := setupCbdcKeeper(t, func(_ sdk.Context, _ *testutil.MockBankKeeper) {})
+	keeper.SetParams(ctx, types.NewParams(testOwner, true))
+
+	address := sdk.MustAccAddressFromBech32("ethm1a0pd5cyew47pvgf7rd7axxy3humv9ev0nnkprp")
+	err := keeper.BurnCoins(ctx, testOwner, address, sdk.NewCoin(testCBDCDenom, math.NewInt(100)))
+	require.ErrorIs(t, err, types.ErrIssuancePaused)
+}
