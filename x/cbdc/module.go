@@ -99,6 +99,7 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 
 func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {
 	ir.RegisterRoute(types.ModuleName, "module-account-exists", am.moduleAccountInvariant())
+	ir.RegisterRoute(types.ModuleName, "owner-valid", am.ownerValidInvariant())
 }
 
 // moduleAccountInvariant checks that the cbdc module account still exists.
@@ -112,6 +113,21 @@ func (am AppModule) moduleAccountInvariant() sdk.Invariant {
 			types.ModuleName,
 			"module-account-exists",
 			fmt.Sprintf("cbdc module account %s does not exist\n", addr),
+		), broken
+	}
+}
+
+// ownerValidInvariant checks that the stored mint/burn owner is well-formed
+// (empty, meaning disabled, or a valid bech32 address). It catches state
+// corruption at a block boundary instead of at the next mint/burn attempt.
+func (am AppModule) ownerValidInvariant() sdk.Invariant {
+	return func(ctx sdk.Context) (string, bool) {
+		params := am.keeper.GetParams(ctx)
+		broken := params.Validate() != nil
+		return sdk.FormatInvariant(
+			types.ModuleName,
+			"owner-valid",
+			fmt.Sprintf("cbdc params owner %q is not a valid address\n", params.Owner),
 		), broken
 	}
 }
