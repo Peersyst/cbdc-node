@@ -20,6 +20,10 @@ const (
 	accountAddressPrefix = "ethm"
 	bip44CoinType        = 60
 	testCBDCDenom        = "acbdc"
+	// testGovAuthority is the params updater (gov module account stand-in).
+	testGovAuthority = "ethm1wunfhl05vc8r8xxnnp8gt62wa54r6y52pg03zq"
+	// testOwner is the mint/burn owner stored in params.
+	testOwner = "ethm1j2arnn0sajut2w8gnaxumrlkkem2c9vz5sfj6k"
 )
 
 func setupSdkConfig() {
@@ -61,10 +65,10 @@ func getMockedCbdcKeeper(_ *testing.T, key *storetypes.KVStoreKey, tsKey *storet
 		encCfg.Codec,
 		paramtypes.NewSubspace(encCfg.Codec, encCfg.Amino, key, tsKey, "cbdc"),
 		bankKeeper,
-		"ethm1wunfhl05vc8r8xxnnp8gt62wa54r6y52pg03zq",
+		testGovAuthority,
 		testCBDCDenom,
 	)
-	cbdcKeeper.SetParams(ctx, types.DefaultParams())
+	cbdcKeeper.SetParams(ctx, types.NewParams(testOwner))
 
 	return cbdcKeeper
 }

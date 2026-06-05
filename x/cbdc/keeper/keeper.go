@@ -15,7 +15,7 @@ type (
 	Keeper struct {
 		cdc        codec.Codec
 		paramstore paramtypes.Subspace
-		authority  string // the address capable of executing a cbdc mint/burn. Usually the gov module account
+		authority  string // the address capable of updating module params (e.g. rotating the mint/burn owner). Usually the gov module account
 		bk         types.BankKeeper
 		cbdcDenom  string // the only denom that can be minted/burned via this module
 	}

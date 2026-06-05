@@ -32,14 +32,14 @@ func TestMsgServer_Mint(t *testing.T) { //nolint:dupl
 		},
 		{
 			name:        "should fail - invalid recipient address",
-			authority:   cbdcKeeper.GetAuthority(),
+			authority:   testOwner,
 			address:     "invalidaddress",
 			amount:      sdk.NewCoin(testCBDCDenom, math.NewInt(100)),
 			expectedErr: errors.New("decoding bech32 failed"),
 		},
 		{
 			name:        "should fail - zero amount",
-			authority:   cbdcKeeper.GetAuthority(),
+			authority:   testOwner,
 			address:     "ethm1a0pd5cyew47pvgf7rd7axxy3humv9ev0nnkprp",
 			amount:      sdk.NewCoin(testCBDCDenom, math.NewInt(0)),
 			expectedErr: types.ErrInvalidAmount,
@@ -47,21 +47,21 @@ func TestMsgServer_Mint(t *testing.T) { //nolint:dupl
 		{
 			// struct literal bypasses sdk.NewCoin, which panics on negatives
 			name:        "should fail - negative amount",
-			authority:   cbdcKeeper.GetAuthority(),
+			authority:   testOwner,
 			address:     "ethm1a0pd5cyew47pvgf7rd7axxy3humv9ev0nnkprp",
 			amount:      sdk.Coin{Denom: testCBDCDenom, Amount: math.NewInt(-100)},
 			expectedErr: errors.New("negative coin amount"),
 		},
 		{
 			name:        "should fail - wrong denom",
-			authority:   cbdcKeeper.GetAuthority(),
+			authority:   testOwner,
 			address:     "ethm1a0pd5cyew47pvgf7rd7axxy3humv9ev0nnkprp",
 			amount:      sdk.NewCoin("axrp", math.NewInt(100)),
 			expectedErr: types.ErrInvalidDenom,
 		},
 		{
 			name:      "should pass",
-			authority: cbdcKeeper.GetAuthority(),
+			authority: testOwner,
 			address:   "ethm1a0pd5cyew47pvgf7rd7axxy3humv9ev0nnkprp",
 			amount:    sdk.NewCoin(testCBDCDenom, math.NewInt(100)),
 		},
@@ -145,7 +145,7 @@ func TestKeeper_MintCoins(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			keeper, ctx := setupCbdcKeeper(t, tc.bankMocks)
 
-			err := keeper.MintCoins(ctx, keeper.GetAuthority(), tc.address, tc.amount)
+			err := keeper.MintCoins(ctx, testOwner, tc.address, tc.amount)
 			if tc.expectedError != nil {
 				require.Error(t, err)
 				require.Contains(t, err.Error(), tc.expectedError.Error())
