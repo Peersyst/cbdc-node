@@ -6,11 +6,16 @@ import (
 	"github.com/peersyst/cbdc-node/x/cbdc/types"
 )
 
-// burningAllowed performs all pre-flight gating for a burn. The address param is
-// kept for symmetry with mintingAllowed and for future address-based gating that
-// would otherwise require a signature change.
-func (k Keeper) burningAllowed(ctx sdk.Context, _ sdk.AccAddress, amount sdk.Coin) error {
-	if k.GetParams(ctx).IssuancePaused {
+// burningAllowed performs all pre-flight gating for a burn, including the owner
+// authorization check so the keeper cannot be burned from by any caller that
+// bypasses the msg server. The address param is kept for symmetry with
+// mintingAllowed and for future address-based gating.
+func (k Keeper) burningAllowed(ctx sdk.Context, owner string, _ sdk.AccAddress, amount sdk.Coin) error {
+	params := k.GetParams(ctx)
+	if owner != params.Owner {
+		return types.ErrUnauthorized
+	}
+	if params.IssuancePaused {
 		return types.ErrIssuancePaused
 	}
 	if err := amount.Validate(); err != nil {
@@ -26,7 +31,7 @@ func (k Keeper) burningAllowed(ctx sdk.Context, _ sdk.AccAddress, amount sdk.Coi
 }
 
 func (k Keeper) BurnCoins(ctx sdk.Context, owner string, address sdk.AccAddress, amount sdk.Coin) error {
-	if err := k.burningAllowed(ctx, address, amount); err != nil {
+	if err := k.burningAllowed(ctx, owner, address, amount); err != nil {
 		return err
 	}
 

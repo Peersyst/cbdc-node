@@ -189,3 +189,11 @@ func TestKeeper_MintCoins_Paused(t *testing.T) {
 	err := keeper.MintCoins(ctx, testOwner, address, sdk.NewCoin(testCBDCDenom, math.NewInt(100)))
 	require.ErrorIs(t, err, types.ErrIssuancePaused)
 }
+
+func TestKeeper_MintCoins_Unauthorized(t *testing.T) {
+	keeper, ctx := setupCbdcKeeper(t, func(_ sdk.Context, _ *testutil.MockBankKeeper) {})
+
+	address := sdk.MustAccAddressFromBech32("ethm1a0pd5cyew47pvgf7rd7axxy3humv9ev0nnkprp")
+	err := keeper.MintCoins(ctx, testGovAuthority, address, sdk.NewCoin(testCBDCDenom, math.NewInt(100)))
+	require.ErrorIs(t, err, types.ErrUnauthorized)
+}

@@ -6,10 +6,16 @@ import (
 	"github.com/peersyst/cbdc-node/x/cbdc/types"
 )
 
-// mintingAllowed performs all pre-flight gating for a mint. Keeping it separate
-// from MintCoins makes new gating (e.g. a paused flag) easy to add and audit.
-func (k Keeper) mintingAllowed(ctx sdk.Context, address sdk.AccAddress, amount sdk.Coin) error {
-	if k.GetParams(ctx).IssuancePaused {
+// mintingAllowed performs all pre-flight gating for a mint, including the owner
+// authorization check so the keeper cannot be minted from by any caller that
+// bypasses the msg server. Keeping it separate from MintCoins makes new gating
+// easy to add and audit.
+func (k Keeper) mintingAllowed(ctx sdk.Context, owner string, address sdk.AccAddress, amount sdk.Coin) error {
+	params := k.GetParams(ctx)
+	if owner != params.Owner {
+		return types.ErrUnauthorized
+	}
+	if params.IssuancePaused {
 		return types.ErrIssuancePaused
 	}
 	if err := amount.Validate(); err != nil {
@@ -31,7 +37,7 @@ func (k Keeper) mintingAllowed(ctx sdk.Context, address sdk.AccAddress, amount s
 }
 
 func (k Keeper) MintCoins(ctx sdk.Context, owner string, address sdk.AccAddress, amount sdk.Coin) error {
-	if err := k.mintingAllowed(ctx, address, amount); err != nil {
+	if err := k.mintingAllowed(ctx, owner, address, amount); err != nil {
 		return err
 	}
 
