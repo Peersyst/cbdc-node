@@ -14,7 +14,6 @@ import (
 
 // avoid unused import issue
 var (
-	_ = sample.AccAddress
 	_ = simulation.MsgEntryKind
 	_ = baseapp.Paramspace
 	_ = rand.Rand{}
@@ -23,7 +22,7 @@ var (
 // GenerateGenesisState creates a randomized GenState of the module
 func (AppModule) GenerateGenesisState(simState *module.SimulationState) {
 	cbdcGenesis := types.GenesisState{
-		Params: types.DefaultParams(),
+		Params: types.NewParams(sample.AccAddress()),
 	}
 	simState.GenState[types.ModuleName] = simState.Cdc.MustMarshalJSON(&cbdcGenesis)
 }

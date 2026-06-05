@@ -29,14 +29,15 @@ func TestMsgServer_UpdateParams(t *testing.T) {
 			expectedErr: types.ErrInvalidOwner,
 		},
 		{
+			name:        "should fail - empty owner",
+			authority:   testGovAuthority,
+			params:      types.NewParams(""),
+			expectedErr: types.ErrInvalidOwner,
+		},
+		{
 			name:      "should pass - rotate owner",
 			authority: testGovAuthority,
 			params:    types.NewParams(newOwner),
-		},
-		{
-			name:      "should pass - clear owner",
-			authority: testGovAuthority,
-			params:    types.NewParams(""),
 		},
 	}
 

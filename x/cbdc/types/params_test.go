@@ -13,7 +13,7 @@ func TestParams_Validate(t *testing.T) {
 		owner     string
 		expectErr bool
 	}{
-		{name: "empty owner is allowed", owner: "", expectErr: false},
+		{name: "empty owner is rejected", owner: "", expectErr: true},
 		{name: "valid bech32 owner", owner: sample.AccAddress(), expectErr: false},
 		{name: "malformed owner", owner: "not-an-address", expectErr: true},
 	}

@@ -20,7 +20,9 @@ func NewParams(owner string) Params {
 	return Params{Owner: owner}
 }
 
-// DefaultParams returns a default set of parameters
+// DefaultParams returns a default set of parameters. The owner is intentionally
+// empty (and therefore invalid): each chain must set a mint/burn owner in
+// genesis, otherwise InitChain fails rather than booting with no minter.
 func DefaultParams() Params {
 	return NewParams("")
 }
@@ -37,15 +39,16 @@ func (p *Params) Validate() error {
 	return validateOwner(p.Owner)
 }
 
-// validateOwner accepts an empty owner (mint/burn stays disabled until gov sets
-// one) or a well-formed bech32 address.
+// validateOwner requires a non-empty, well-formed bech32 address. The owner is
+// the mint/burn signer, so an unset owner is rejected: a genesis that forgets to
+// set it fails InitChain instead of silently coming up with no minter.
 func validateOwner(i interface{}) error {
 	owner, ok := i.(string)
 	if !ok {
 		return ErrInvalidOwner.Wrapf("invalid parameter type: %T", i)
 	}
 	if owner == "" {
-		return nil
+		return ErrInvalidOwner.Wrap("owner must not be empty")
 	}
 	if _, err := sdk.AccAddressFromBech32(owner); err != nil {
 		return ErrInvalidOwner.Wrapf("invalid owner address (%s): %s", owner, err)

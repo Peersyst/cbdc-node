@@ -60,6 +60,10 @@ jq '.app_state.erc20.token_pairs=[{contract_owner:1,erc20_address:"0xeeeeeeeeeee
 jq '.app_state["slashing"]["params"]["slash_fraction_double_sign"]="0"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 jq '.app_state["slashing"]["params"]["slash_fraction_downtime"]="0"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
+# the cbdc mint/burn owner is required (empty owner fails InitChain); use the dev key
+CBDC_OWNER=$(bin/cbdcd --home "$HOMEDIR" keys show "$KEY_NAME" -a --keyring-backend "$KEYRING")
+jq '.app_state["cbdc"]["params"]["owner"]="'${CBDC_OWNER}'"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+
 bin/cbdcd --home "$HOMEDIR" genesis add-genesis-account "$(bin/cbdcd --home "$HOMEDIR" keys show "$KEY_NAME" -a --keyring-backend "$KEYRING")" 1000000apoa,1000000000000000000000000000axrp --keyring-backend "$KEYRING"
 
 bin/cbdcd --home "$HOMEDIR" genesis add-genesis-account "ethm1zrxl239wa6ad5xge3gs68rt98227xgnjq0xyw2" 1000000000000000000000000000axrp --keyring-backend "$KEYRING"
