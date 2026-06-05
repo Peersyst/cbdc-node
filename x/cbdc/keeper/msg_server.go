@@ -26,8 +26,13 @@ func (k msgServer) Mint(goCtx context.Context, msg *types.MsgMint) (*types.MsgMi
 		return nil, errors.Wrapf(types.ErrUnauthorized, "expected %s got %s", k.authority, msg.Owner)
 	}
 
+	address, err := sdk.AccAddressFromBech32(msg.Address)
+	if err != nil {
+		return nil, err
+	}
+
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	if err := k.executeMint(ctx, msg.Owner, msg.Address, msg.Amount); err != nil {
+	if err := k.executeMint(ctx, msg.Owner, address, msg.Amount); err != nil {
 		return nil, err
 	}
 
@@ -39,8 +44,13 @@ func (k msgServer) Burn(goCtx context.Context, msg *types.MsgBurn) (*types.MsgBu
 		return nil, errors.Wrapf(types.ErrUnauthorized, "expected %s got %s", k.authority, msg.Owner)
 	}
 
+	address, err := sdk.AccAddressFromBech32(msg.Address)
+	if err != nil {
+		return nil, err
+	}
+
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	if err := k.executeBurn(ctx, msg.Owner, msg.Address, msg.Amount); err != nil {
+	if err := k.executeBurn(ctx, msg.Owner, address, msg.Amount); err != nil {
 		return nil, err
 	}
 

@@ -87,37 +87,32 @@ func TestMsgServer_Burn(t *testing.T) { //nolint:dupl
 }
 
 func TestKeeper_ExecuteBurn(t *testing.T) {
+	address := sdk.MustAccAddressFromBech32("ethm1a0pd5cyew47pvgf7rd7axxy3humv9ev0nnkprp")
+
 	tt := []struct {
 		name          string
-		address       string
+		address       sdk.AccAddress
 		amount        sdk.Coin
 		bankMocks     func(ctx sdk.Context, bankKeeper *testutil.MockBankKeeper)
 		expectedError error
 	}{
 		{
 			name:          "should fail - zero amount",
-			address:       "ethm1a0pd5cyew47pvgf7rd7axxy3humv9ev0nnkprp",
+			address:       address,
 			amount:        sdk.NewCoin(testCBDCDenom, math.NewInt(0)),
 			bankMocks:     func(_ sdk.Context, _ *testutil.MockBankKeeper) {},
 			expectedError: types.ErrInvalidAmount,
 		},
 		{
 			name:          "should fail - wrong denom",
-			address:       "ethm1a0pd5cyew47pvgf7rd7axxy3humv9ev0nnkprp",
+			address:       address,
 			amount:        sdk.NewCoin("axrp", math.NewInt(100)),
 			bankMocks:     func(_ sdk.Context, _ *testutil.MockBankKeeper) {},
 			expectedError: types.ErrInvalidDenom,
 		},
 		{
-			name:          "should fail - invalid address",
-			address:       "invalidaddress",
-			amount:        sdk.NewCoin(testCBDCDenom, math.NewInt(100)),
-			bankMocks:     func(_ sdk.Context, _ *testutil.MockBankKeeper) {},
-			expectedError: errors.New("decoding bech32 failed"),
-		},
-		{
 			name:    "should fail - SendCoinsFromAccountToModule returns error",
-			address: "ethm1a0pd5cyew47pvgf7rd7axxy3humv9ev0nnkprp",
+			address: address,
 			amount:  sdk.NewCoin(testCBDCDenom, math.NewInt(100)),
 			bankMocks: func(ctx sdk.Context, bankKeeper *testutil.MockBankKeeper) {
 				bankKeeper.EXPECT().SendCoinsFromAccountToModule(ctx, gomock.Any(), gomock.Any(), gomock.Any()).Return(errors.New("bank send error"))
@@ -126,7 +121,7 @@ func TestKeeper_ExecuteBurn(t *testing.T) {
 		},
 		{
 			name:    "should fail - BurnCoins returns error",
-			address: "ethm1a0pd5cyew47pvgf7rd7axxy3humv9ev0nnkprp",
+			address: address,
 			amount:  sdk.NewCoin(testCBDCDenom, math.NewInt(100)),
 			bankMocks: func(ctx sdk.Context, bankKeeper *testutil.MockBankKeeper) {
 				bankKeeper.EXPECT().SendCoinsFromAccountToModule(ctx, gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
@@ -136,7 +131,7 @@ func TestKeeper_ExecuteBurn(t *testing.T) {
 		},
 		{
 			name:    "should pass",
-			address: "ethm1a0pd5cyew47pvgf7rd7axxy3humv9ev0nnkprp",
+			address: address,
 			amount:  sdk.NewCoin(testCBDCDenom, math.NewInt(100)),
 			bankMocks: func(ctx sdk.Context, bankKeeper *testutil.MockBankKeeper) {
 				coins := sdk.NewCoins(sdk.NewCoin(testCBDCDenom, math.NewInt(100)))

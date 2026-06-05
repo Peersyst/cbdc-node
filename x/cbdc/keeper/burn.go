@@ -6,7 +6,7 @@ import (
 	"github.com/peersyst/cbdc-node/x/cbdc/types"
 )
 
-func (k Keeper) executeBurn(ctx sdk.Context, owner string, address string, amount sdk.Coin) error {
+func (k Keeper) executeBurn(ctx sdk.Context, owner string, address sdk.AccAddress, amount sdk.Coin) error {
 	if err := amount.Validate(); err != nil {
 		return err
 	}
@@ -17,13 +17,8 @@ func (k Keeper) executeBurn(ctx sdk.Context, owner string, address string, amoun
 		return types.ErrInvalidAmount
 	}
 
-	fromAddr, err := sdk.AccAddressFromBech32(address)
-	if err != nil {
-		return err
-	}
-
 	coins := sdk.NewCoins(amount)
-	if err := k.bk.SendCoinsFromAccountToModule(ctx, fromAddr, types.ModuleName, coins); err != nil {
+	if err := k.bk.SendCoinsFromAccountToModule(ctx, address, types.ModuleName, coins); err != nil {
 		return err
 	}
 	if err := k.bk.BurnCoins(ctx, types.ModuleName, coins); err != nil {
@@ -34,7 +29,7 @@ func (k Keeper) executeBurn(ctx sdk.Context, owner string, address string, amoun
 		sdk.NewEvent(
 			types.EventTypeBurn,
 			sdk.NewAttribute(types.AttributeOwner, owner),
-			sdk.NewAttribute(types.AttributeAddress, fromAddr.String()),
+			sdk.NewAttribute(types.AttributeAddress, address.String()),
 			sdk.NewAttribute(types.AttributeAmount, amount.String()),
 		),
 	)
