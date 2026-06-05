@@ -32,7 +32,7 @@ func (k msgServer) Mint(goCtx context.Context, msg *types.MsgMint) (*types.MsgMi
 	}
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	if err := k.executeMint(ctx, msg.Owner, address, msg.Amount); err != nil {
+	if err := k.MintCoins(ctx, msg.Owner, address, msg.Amount); err != nil {
 		return nil, err
 	}
 
@@ -50,7 +50,7 @@ func (k msgServer) Burn(goCtx context.Context, msg *types.MsgBurn) (*types.MsgBu
 	}
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	if err := k.executeBurn(ctx, msg.Owner, address, msg.Amount); err != nil {
+	if err := k.BurnCoins(ctx, msg.Owner, address, msg.Amount); err != nil {
 		return nil, err
 	}
 

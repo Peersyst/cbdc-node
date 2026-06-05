@@ -6,7 +6,7 @@ import (
 	"github.com/peersyst/cbdc-node/x/cbdc/types"
 )
 
-func (k Keeper) executeMint(ctx sdk.Context, owner string, address sdk.AccAddress, amount sdk.Coin) error {
+func (k Keeper) MintCoins(ctx sdk.Context, owner string, address sdk.AccAddress, amount sdk.Coin) error {
 	if err := amount.Validate(); err != nil {
 		return err
 	}

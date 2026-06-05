@@ -86,7 +86,7 @@ func TestMsgServer_Mint(t *testing.T) { //nolint:dupl
 	}
 }
 
-func TestKeeper_ExecuteMint(t *testing.T) {
+func TestKeeper_MintCoins(t *testing.T) {
 	address := sdk.MustAccAddressFromBech32("ethm1a0pd5cyew47pvgf7rd7axxy3humv9ev0nnkprp")
 
 	tt := []struct {
@@ -145,7 +145,7 @@ func TestKeeper_ExecuteMint(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			keeper, ctx := setupCbdcKeeper(t, tc.bankMocks)
 
-			err := keeper.executeMint(ctx, keeper.GetAuthority(), tc.address, tc.amount)
+			err := keeper.MintCoins(ctx, keeper.GetAuthority(), tc.address, tc.amount)
 			if tc.expectedError != nil {
 				require.Error(t, err)
 				require.Contains(t, err.Error(), tc.expectedError.Error())
