@@ -44,6 +44,7 @@ func poaKeeperTestSetup(t *testing.T) (*Keeper, sdk.Context) {
 		bankKeeper.EXPECT().MintCoins(ctx, gomock.Any(), gomock.Any()).Return(nil).AnyTimes()
 		bankKeeper.EXPECT().SendCoinsFromModuleToAccount(ctx, gomock.Any(), gomock.Any(), gomock.Any()).Return(nil).AnyTimes()
 		bankKeeper.EXPECT().BurnCoins(ctx, stakingtypes.BondedPoolName, gomock.Any()).Return(nil).AnyTimes()
+		bankKeeper.EXPECT().BurnCoins(ctx, stakingtypes.NotBondedPoolName, gomock.Any()).Return(nil).AnyTimes()
 		bankKeeper.EXPECT().SendCoinsFromAccountToModule(ctx, gomock.Any(), gomock.Any(), gomock.Any()).Return(nil).AnyTimes()
 	}
 
@@ -559,7 +560,7 @@ func TestKeeper_ExecuteRemoveValidator(t *testing.T) {
 				)
 			},
 			bankMocks: func(ctx sdk.Context, bankKeeper *testutil.MockBankKeeper) {
-				bankKeeper.EXPECT().BurnCoins(ctx, gomock.Any(), gomock.Any()).Return(errors.New("bank keeper burn coins error"))
+				bankKeeper.EXPECT().BurnCoins(ctx, stakingtypes.BondedPoolName, gomock.Any()).Return(errors.New("bank keeper burn coins error"))
 			},
 		},
 		//nolint:dupl
@@ -590,7 +591,7 @@ func TestKeeper_ExecuteRemoveValidator(t *testing.T) {
 				)
 			},
 			bankMocks: func(ctx sdk.Context, bankKeeper *testutil.MockBankKeeper) {
-				bankKeeper.EXPECT().BurnCoins(ctx, gomock.Any(), gomock.Any()).Return(errors.New("bank keeper burn coins error"))
+				bankKeeper.EXPECT().BurnCoins(ctx, stakingtypes.NotBondedPoolName, gomock.Any()).Return(errors.New("bank keeper burn coins error"))
 			},
 		},
 		{
@@ -651,7 +652,7 @@ func TestKeeper_ExecuteRemoveValidator(t *testing.T) {
 				)
 			},
 			bankMocks: func(ctx sdk.Context, bankKeeper *testutil.MockBankKeeper) {
-				bankKeeper.EXPECT().BurnCoins(ctx, gomock.Any(), gomock.Any()).Return(nil)
+				bankKeeper.EXPECT().BurnCoins(ctx, stakingtypes.BondedPoolName, gomock.Any()).Return(nil)
 			},
 		},
 	}

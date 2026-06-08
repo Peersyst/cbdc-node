@@ -31,6 +31,7 @@ import (
 
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 	cbdccommon "github.com/peersyst/cbdc-node/testutil/integration/cbdc/common"
+	cbdctypes "github.com/peersyst/cbdc-node/x/cbdc/types"
 
 	"github.com/peersyst/cbdc-node/app"
 )
@@ -427,6 +428,15 @@ func setDefaultErc20GenesisState(app *app.App, genesisState testutil.GenesisStat
 	return genesisState
 }
 
+// setDefaultCbdcGenesisState sets a valid mint/burn owner, since the module's
+// default params leave it empty (which fails InitChain by design).
+func setDefaultCbdcGenesisState(app *app.App, genesisState testutil.GenesisState) testutil.GenesisState {
+	cbdcGen := cbdctypes.DefaultGenesis()
+	cbdcGen.Params = cbdctypes.NewParams(authtypes.NewModuleAddress(govtypes.ModuleName).String(), false)
+	genesisState[cbdctypes.ModuleName] = app.AppCodec().MustMarshalJSON(cbdcGen)
+	return genesisState
+}
+
 // defaultAuthGenesisState sets the default genesis state
 // for the testing setup
 func newDefaultGenesisState(app *app.App, params defaultGenesisParams) testutil.GenesisState {
@@ -438,6 +448,7 @@ func newDefaultGenesisState(app *app.App, params defaultGenesisParams) testutil.
 	genesisState = setDefaultGovGenesisState(app, genesisState, params.gov)
 	genesisState = setDefaultSlashingGenesisState(app, genesisState, params.slashing)
 	genesisState = setDefaultErc20GenesisState(app, genesisState)
+	genesisState = setDefaultCbdcGenesisState(app, genesisState)
 
 	return genesisState
 }

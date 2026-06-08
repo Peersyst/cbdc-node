@@ -47,6 +47,7 @@ jq '.app_state["staking"]["params"]["bond_denom"]="apoa"' "$GENESIS" >"$TMP_GENE
 jq '.app_state["staking"]["params"]["unbonding_time"]="60s"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 jq '.app_state["feemarket"]["params"]["base_fee"]="'${BASEFEE}'"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 jq '.app_state["feemarket"]["params"]["no_base_fee"]=true' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+jq '.app_state["feemarket"]["params"]["min_gas_price"]="0.000000000000000000"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
 jq '.app_state.bank.denom_metadata=[{"description":"XRP is the gas token","denom_units":[{"denom":"axrp"},{"denom":"xrp","exponent":18}],"base":"axrp","display":"xrp","name":"XRP","symbol":"XRP"}]' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
@@ -59,11 +60,15 @@ jq '.app_state.erc20.token_pairs=[{contract_owner:1,erc20_address:"0xeeeeeeeeeee
 jq '.app_state["slashing"]["params"]["slash_fraction_double_sign"]="0"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 jq '.app_state["slashing"]["params"]["slash_fraction_downtime"]="0"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
+# the cbdc mint/burn owner is required (empty owner fails InitChain); use the dev key
+CBDC_OWNER=$(bin/cbdcd --home "$HOMEDIR" keys show "$KEY_NAME" -a --keyring-backend "$KEYRING")
+jq '.app_state["cbdc"]["params"]["owner"]="'${CBDC_OWNER}'"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+
 bin/cbdcd --home "$HOMEDIR" genesis add-genesis-account "$(bin/cbdcd --home "$HOMEDIR" keys show "$KEY_NAME" -a --keyring-backend "$KEYRING")" 1000000apoa,1000000000000000000000000000axrp --keyring-backend "$KEYRING"
 
 bin/cbdcd --home "$HOMEDIR" genesis add-genesis-account "ethm1zrxl239wa6ad5xge3gs68rt98227xgnjq0xyw2" 1000000000000000000000000000axrp --keyring-backend "$KEYRING"
 
-bin/cbdcd --home "$HOMEDIR" genesis gentx alice 1000000apoa --gas-prices ${BASEFEE}axrp --keyring-backend "$KEYRING" --chain-id "$CHAINID"
+bin/cbdcd --home "$HOMEDIR" genesis gentx alice 1000000apoa --fees ${BASEFEE}axrp --gas 1000000 --keyring-backend "$KEYRING" --chain-id "$CHAINID"
 
 bin/cbdcd --home "$HOMEDIR" genesis collect-gentxs
 

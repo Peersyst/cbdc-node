@@ -1,0 +1,10 @@
+syntax = "proto3";
+package cbdc;
+
+import "gogoproto/gogo.proto";
+import "cbdc/params.proto";
+
+option go_package = "github.com/peersyst/cbdc-node/x/cbdc/types";
+
+// GenesisState defines the cbdc module's genesis state.
+message GenesisState { Params params = 1 [ (gogoproto.nullable) = false ]; }

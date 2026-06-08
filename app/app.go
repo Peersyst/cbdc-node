@@ -127,6 +127,9 @@ import (
 	ibckeeper "github.com/cosmos/ibc-go/v10/modules/core/keeper"
 
 	"github.com/peersyst/cbdc-node/docs"
+	"github.com/peersyst/cbdc-node/x/cbdc"
+	cbdckeeper "github.com/peersyst/cbdc-node/x/cbdc/keeper"
+	cbdctypes "github.com/peersyst/cbdc-node/x/cbdc/types"
 	poakeeper "github.com/peersyst/cbdc-node/x/poa/keeper"
 	poatypes "github.com/peersyst/cbdc-node/x/poa/types"
 
@@ -172,6 +175,7 @@ var (
 		ratelimittypes.ModuleName:      nil,
 		feemarkettypes.ModuleName:      nil,
 		poatypes.ModuleName:            {authtypes.Minter, authtypes.Burner},
+		cbdctypes.ModuleName:           {authtypes.Minter, authtypes.Burner},
 	}
 )
 
@@ -247,7 +251,8 @@ type App struct {
 	Erc20Keeper     erc20keeper.Keeper
 
 	// cbdc keepers
-	PoaKeeper poakeeper.Keeper
+	PoaKeeper  poakeeper.Keeper
+	CbdcKeeper cbdckeeper.Keeper
 
 	// mm is the module manager
 	mm                 *module.Manager
@@ -471,6 +476,14 @@ func New(
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
+	app.CbdcKeeper = *cbdckeeper.NewKeeper(
+		appCodec,
+		app.GetSubspace(cbdctypes.ModuleName),
+		app.BankKeeper,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		BaseDenom,
+	)
+
 	// Ethermint keepers
 
 	// Feemarket Keeper
@@ -683,6 +696,7 @@ func New(
 
 		// cbdc app modules
 		poa.NewAppModule(appCodec, app.PoaKeeper, app.BankKeeper, app.StakingKeeper, app.AccountKeeper, app.interfaceRegistry),
+		cbdc.NewAppModule(appCodec, app.CbdcKeeper, app.AccountKeeper, app.interfaceRegistry),
 	)
 
 	// BasicModuleManager defines the module BasicManager which is in charge of setting up basic,
@@ -769,6 +783,7 @@ func New(
 		// Evmos
 		erc20types.ModuleName,
 		poatypes.ModuleName,
+		cbdctypes.ModuleName,
 		crisistypes.ModuleName,
 		ratelimittypes.ModuleName,
 	}
@@ -1155,6 +1170,8 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(evmtypes.ModuleName)
 	paramsKeeper.Subspace(feemarkettypes.ModuleName)
 	paramsKeeper.Subspace(erc20types.ModuleName)
+
+	paramsKeeper.Subspace(cbdctypes.ModuleName)
 
 	return paramsKeeper
 }
