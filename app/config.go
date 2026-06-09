@@ -18,7 +18,7 @@ const (
 	Bip44CoinType = 60
 	Name          = "cbdc"
 	// BaseDenom defines to the default denomination used in EVM
-	BaseDenom                  = "acbdc"
+	BaseDenom                  = "hnl"
 	Denom                      = "CBDC"
 	DenomDescription           = "CBDC is the digital central bank currency."
 	DenomName                  = "CBDC"
